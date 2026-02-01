@@ -1,0 +1,3 @@
+/home/lizjrz/Desktop/#1/Class_Work/build/CMakeFiles/lexer.dir
+/home/lizjrz/Desktop/#1/Class_Work/build/CMakeFiles/edit_cache.dir
+/home/lizjrz/Desktop/#1/Class_Work/build/CMakeFiles/rebuild_cache.dir
