@@ -1,0 +1,53 @@
+# ===== CMake build directories =====
+/build/
+/build*/      # ignore build variants like build-debug, build-release
+/CMakeFiles/
+/CMakeCache.txt
+/cmake_install.cmake
+/Makefile
+/compile_commands.json
+
+# ---------------------------
+# Bison generated files
+# ---------------------------
+Class_work/Parser.cpp
+Class_work/Parser.hpp
+Class_work/lex.yy.cpp
+Class_work/main.exe
+Class_work/lex.yy.cpp
+Class_work/ast.cpp
+Class_work/ast.hpp
+
+
+mycompiler
+Parser.tab.cc 
+Parser.tab.hh
+
+# ===== Executables and binaries =====
+*.exe
+*.out
+*.o
+*.obj
+*.a
+*.so
+*.dll
+*.lib
+*.dylib
+
+# ===== Logs and temporary files =====
+*.log
+*.tmp
+
+# ===== IDE / Editor files =====
+.vscode/
+.idea/
+*.code-workspace
+
+# ===== OS files =====
+.DS_Store
+Thumbs.db
+
+# ===== Other optional =====
+# If you generate documentation or test outputs
+/docs/
+/tests/output/
