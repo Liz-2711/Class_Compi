@@ -11,12 +11,12 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-#define REFLEX_OPTION_fast                true
+#define REFLEX_OPTION_bison               true
 #define REFLEX_OPTION_header_file         "Lexer.hpp"
 #define REFLEX_OPTION_lex                 nextToken
 #define REFLEX_OPTION_lexer               SampleLexer
 #define REFLEX_OPTION_outfile             "Lexer.cpp"
-#define REFLEX_OPTION_token_type          Tokens
+#define REFLEX_OPTION_token_type          int
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -24,10 +24,12 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-#line 13 "lexer.l"
+#line 6 "lexer.l"
 
-    #include "tokens.hpp"
+    #include "Parser.hpp"
 
+
+#ifdef __cplusplus
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -52,12 +54,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 class SampleLexer : public reflex::AbstractLexer<reflex::Matcher> {
-#line 17 "lexer.l"
-
-    // aqui podemos agregarle mas metodos a lexer, por defecto son private
-public:
-  //  std::string tokenText; // este es un ejemplo, no hace nada
-
  public:
   typedef reflex::AbstractLexer<reflex::Matcher> AbstractBaseLexer;
   SampleLexer(
@@ -71,14 +67,14 @@ public:
   }
   static const int INITIAL = 0;
   // the lexer function defined by SECTION 2
-  virtual Tokens nextToken(void);
+  virtual int nextToken(void);
   // lexer functions accepting new input to scan
-  Tokens nextToken(const reflex::Input& input)
+  int nextToken(const reflex::Input& input)
   {
     in(input);
     return nextToken();
   }
-  Tokens nextToken(const reflex::Input& input, std::ostream *os)
+  int nextToken(const reflex::Input& input, std::ostream *os)
   {
     in(input);
     if (os)
@@ -86,5 +82,26 @@ public:
     return nextToken();
   }
 };
+
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+//  BISON                                                                     //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
+extern SampleLexer YY_SCANNER;
+
+#ifndef YY_EXTERN_C
+#define YY_EXTERN_C
+#endif
+
+#else // !__cplusplus
+
+#undef YY_EXTERN_C
+#define YY_EXTERN_C
+
+#endif // __cplusplus
+
+YY_EXTERN_C int yylex(void);
 
 #endif

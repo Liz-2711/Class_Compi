@@ -1,5 +1,4 @@
-_tempVar 42 "A simple string"
-another_1 "String with \"quotes\" inside"
-99bottles
-    
-    "   "
+4+7 
+
+//
+7*8
