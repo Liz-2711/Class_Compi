@@ -42,27 +42,20 @@
 
 
 // Unqualified %code blocks.
-#line 26 "bison.y"
+#line 27 "parser2.y"
 
     #include "Lexer.hpp"
     #include <iostream>
     
-    // Tabla de variables global usando unordered_map
-    std::unordered_map<std::string, int> vars;  
-    
     namespace Expr {
-        int yylex(Parser::semantic_type* yylval, SampleLexer& lexer) {
-            return lexer.nextToken(yylval);
-        }
-        
-        void Parser::error(const std::string& msg) {
-            std::cerr << "Error de parsing: " << msg << std::endl;
+        int yylex(Expr::Parser::semantic_type* yylval, SampleLexer& lexer) {
+            return lexer.nextToken();
         }
     }
     
-    #define yylex(yylval) Expr::yylex(yylval, lexer)
+    #define yylex(yylval) yylex(yylval, lexer)
 
-#line 66 "Parser.cpp"
+#line 59 "Parser.cpp"
 
 
 #ifndef YY_
@@ -134,9 +127,9 @@
 #define YYERROR         goto yyerrorlab
 #define YYRECOVERING()  (!!yyerrstatus_)
 
-#line 12 "bison.y"
+#line 15 "parser2.y"
 namespace Expr {
-#line 140 "Parser.cpp"
+#line 133 "Parser.cpp"
 
   /// Build a parser object.
   Parser::Parser (SampleLexer& lexer_yyarg)
@@ -163,29 +156,22 @@ namespace Expr {
   template <typename Base>
   Parser::basic_symbol<Base>::basic_symbol (const basic_symbol& that)
     : Base (that)
+    , value (that.value)
+  {}
+
+
+  /// Constructor for valueless symbols.
+  template <typename Base>
+  Parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t)
+    : Base (t)
     , value ()
-  {
-    switch (this->kind ())
-    {
-      case symbol_kind::S_NUMBER: // "number"
-      case symbol_kind::S_input: // input
-      case symbol_kind::S_expr: // expr
-      case symbol_kind::S_term: // term
-      case symbol_kind::S_factor: // factor
-        value.copy< int > (YY_MOVE (that.value));
-        break;
+  {}
 
-      case symbol_kind::S_IDENTIFIER: // "identifier"
-        value.copy< std::string > (YY_MOVE (that.value));
-        break;
-
-      default:
-        break;
-    }
-
-  }
-
-
+  template <typename Base>
+  Parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, YY_RVREF (value_type) v)
+    : Base (t)
+    , value (YY_MOVE (v))
+  {}
 
 
   template <typename Base>
@@ -208,24 +194,7 @@ namespace Expr {
   Parser::basic_symbol<Base>::move (basic_symbol& s)
   {
     super_type::move (s);
-    switch (this->kind ())
-    {
-      case symbol_kind::S_NUMBER: // "number"
-      case symbol_kind::S_input: // input
-      case symbol_kind::S_expr: // expr
-      case symbol_kind::S_term: // term
-      case symbol_kind::S_factor: // factor
-        value.move< int > (YY_MOVE (s.value));
-        break;
-
-      case symbol_kind::S_IDENTIFIER: // "identifier"
-        value.move< std::string > (YY_MOVE (s.value));
-        break;
-
-      default:
-        break;
-    }
-
+    value = YY_MOVE (s.value);
   }
 
   // by_kind.
@@ -318,26 +287,8 @@ namespace Expr {
   {}
 
   Parser::stack_symbol_type::stack_symbol_type (YY_RVREF (stack_symbol_type) that)
-    : super_type (YY_MOVE (that.state))
+    : super_type (YY_MOVE (that.state), YY_MOVE (that.value))
   {
-    switch (that.kind ())
-    {
-      case symbol_kind::S_NUMBER: // "number"
-      case symbol_kind::S_input: // input
-      case symbol_kind::S_expr: // expr
-      case symbol_kind::S_term: // term
-      case symbol_kind::S_factor: // factor
-        value.YY_MOVE_OR_COPY< int > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_IDENTIFIER: // "identifier"
-        value.YY_MOVE_OR_COPY< std::string > (YY_MOVE (that.value));
-        break;
-
-      default:
-        break;
-    }
-
 #if 201103L <= YY_CPLUSPLUS
     // that is emptied.
     that.state = empty_state;
@@ -345,26 +296,8 @@ namespace Expr {
   }
 
   Parser::stack_symbol_type::stack_symbol_type (state_type s, YY_MOVE_REF (symbol_type) that)
-    : super_type (s)
+    : super_type (s, YY_MOVE (that.value))
   {
-    switch (that.kind ())
-    {
-      case symbol_kind::S_NUMBER: // "number"
-      case symbol_kind::S_input: // input
-      case symbol_kind::S_expr: // expr
-      case symbol_kind::S_term: // term
-      case symbol_kind::S_factor: // factor
-        value.move< int > (YY_MOVE (that.value));
-        break;
-
-      case symbol_kind::S_IDENTIFIER: // "identifier"
-        value.move< std::string > (YY_MOVE (that.value));
-        break;
-
-      default:
-        break;
-    }
-
     // that is emptied.
     that.kind_ = symbol_kind::S_YYEMPTY;
   }
@@ -374,24 +307,7 @@ namespace Expr {
   Parser::stack_symbol_type::operator= (const stack_symbol_type& that)
   {
     state = that.state;
-    switch (that.kind ())
-    {
-      case symbol_kind::S_NUMBER: // "number"
-      case symbol_kind::S_input: // input
-      case symbol_kind::S_expr: // expr
-      case symbol_kind::S_term: // term
-      case symbol_kind::S_factor: // factor
-        value.copy< int > (that.value);
-        break;
-
-      case symbol_kind::S_IDENTIFIER: // "identifier"
-        value.copy< std::string > (that.value);
-        break;
-
-      default:
-        break;
-    }
-
+    value = that.value;
     return *this;
   }
 
@@ -399,24 +315,7 @@ namespace Expr {
   Parser::stack_symbol_type::operator= (stack_symbol_type& that)
   {
     state = that.state;
-    switch (that.kind ())
-    {
-      case symbol_kind::S_NUMBER: // "number"
-      case symbol_kind::S_input: // input
-      case symbol_kind::S_expr: // expr
-      case symbol_kind::S_term: // term
-      case symbol_kind::S_factor: // factor
-        value.move< int > (that.value);
-        break;
-
-      case symbol_kind::S_IDENTIFIER: // "identifier"
-        value.move< std::string > (that.value);
-        break;
-
-      default:
-        break;
-    }
-
+    value = that.value;
     // that is emptied.
     that.state = empty_state;
     return *this;
@@ -429,6 +328,9 @@ namespace Expr {
   {
     if (yymsg)
       YY_SYMBOL_PRINT (yymsg, yysym);
+
+    // User destructor.
+    YY_USE (yysym.kind ());
   }
 
 #if YYDEBUG
@@ -661,27 +563,16 @@ namespace Expr {
     {
       stack_symbol_type yylhs;
       yylhs.state = yy_lr_goto_state_ (yystack_[yylen].state, yyr1_[yyn]);
-      /* Variants are always initialized to an empty instance of the
-         correct type. The default '$$ = $1' action is NOT applied
-         when using variants.  */
-      switch (yyr1_[yyn])
-    {
-      case symbol_kind::S_NUMBER: // "number"
-      case symbol_kind::S_input: // input
-      case symbol_kind::S_expr: // expr
-      case symbol_kind::S_term: // term
-      case symbol_kind::S_factor: // factor
-        yylhs.value.emplace< int > ();
-        break;
+      /* If YYLEN is nonzero, implement the default value of the
+         action: '$$ = $1'.  Otherwise, use the top of the stack.
 
-      case symbol_kind::S_IDENTIFIER: // "identifier"
-        yylhs.value.emplace< std::string > ();
-        break;
-
-      default:
-        break;
-    }
-
+         Otherwise, the following line sets YYLHS.VALUE to garbage.
+         This behavior is undocumented and Bison users should not rely
+         upon it.  */
+      if (yylen)
+        yylhs.value = yystack_[yylen - 1].value;
+      else
+        yylhs.value = yystack_[0].value;
 
 
       // Perform the reduction.
@@ -692,82 +583,62 @@ namespace Expr {
         {
           switch (yyn)
             {
-  case 2: // input: expr
-#line 48 "bison.y"
-            { 
-    std::cout << "Resultado: " << yystack_[0].value.as < int > () << std::endl; 
-    yylhs.value.as < int > () = yystack_[0].value.as < int > (); 
-}
-#line 702 "Parser.cpp"
+  case 2: // start: expr "end of file"
+#line 42 "parser2.y"
+                        { std::cout << "Parsing completed successfully!\n"; }
+#line 590 "Parser.cpp"
     break;
 
   case 3: // expr: expr "+" term
-#line 54 "bison.y"
-                        { 
-    std::cout << "Evaluando: " << yystack_[2].value.as < int > () << " + " << yystack_[0].value.as < int > () << std::endl;
-    yylhs.value.as < int > () = yystack_[2].value.as < int > () + yystack_[0].value.as < int > (); 
-}
-#line 711 "Parser.cpp"
+#line 45 "parser2.y"
+                        { std::cout << "expr + term\n"; }
+#line 596 "Parser.cpp"
     break;
 
   case 4: // expr: term
-#line 58 "bison.y"
-       { 
-    yylhs.value.as < int > () = yystack_[0].value.as < int > (); 
-}
-#line 719 "Parser.cpp"
+#line 46 "parser2.y"
+           { std::cout << "term\n"; }
+#line 602 "Parser.cpp"
     break;
 
   case 5: // term: term "*" factor
-#line 63 "bison.y"
-                          { 
-    std::cout << "Evaluando: " << yystack_[2].value.as < int > () << " * " << yystack_[0].value.as < int > () << std::endl;
-    yylhs.value.as < int > () = yystack_[2].value.as < int > () * yystack_[0].value.as < int > (); 
-}
-#line 728 "Parser.cpp"
+#line 49 "parser2.y"
+                          { std::cout << "term * factor\n"; }
+#line 608 "Parser.cpp"
     break;
 
   case 6: // term: factor
-#line 67 "bison.y"
-         { 
-    yylhs.value.as < int > () = yystack_[0].value.as < int > (); 
-}
-#line 736 "Parser.cpp"
+#line 50 "parser2.y"
+             { std::cout << "factor\n"; }
+#line 614 "Parser.cpp"
     break;
 
   case 7: // factor: "(" expr ")"
-#line 72 "bison.y"
-                                { 
-    yylhs.value.as < int > () = yystack_[1].value.as < int > (); 
-}
-#line 744 "Parser.cpp"
+#line 53 "parser2.y"
+                                { std::cout << "(expr)\n"; }
+#line 620 "Parser.cpp"
     break;
 
   case 8: // factor: "number"
-#line 75 "bison.y"
-         { 
-    yylhs.value.as < int > () = std::stoi(lexer.str()); 
-}
-#line 752 "Parser.cpp"
+#line 54 "parser2.y"
+                     { std::cout << "number: " << lexer.text() << "\n"; }
+#line 626 "Parser.cpp"
     break;
 
   case 9: // factor: "identifier"
-#line 78 "bison.y"
-             {
-    std::string var = lexer.str();
-    auto it = vars.find(var);
-    if(it == vars.end()){
-        std::cerr << "Error: Variable '" << var << "' no definida" << std::endl;
-        throw std::runtime_error("Variable no encontrada: " + var);
-    }
-    std::cout << "Usando variable '" << var << "' = " << it->second << std::endl;
-    yylhs.value.as < int > () = it->second;
-}
-#line 767 "Parser.cpp"
+#line 55 "parser2.y"
+                         { std::cout << "identifier: " << lexer.text() << "\n"; }
+#line 632 "Parser.cpp"
+    break;
+
+  case 10: // factor: "string"
+#line 56 "parser2.y"
+                     { std::cout << "string: " << lexer.text() << "\n"; }
+#line 638 "Parser.cpp"
     break;
 
 
-#line 771 "Parser.cpp"
+#line 642 "Parser.cpp"
 
             default:
               break;
@@ -1115,67 +986,69 @@ namespace Expr {
   }
 
 
-  const signed char Parser::yypact_ninf_ = -6;
+  const signed char Parser::yypact_ninf_ = -7;
 
   const signed char Parser::yytable_ninf_ = -1;
 
   const signed char
   Parser::yypact_[] =
   {
-      -5,    -5,    -6,    -6,     5,     3,     4,    -6,    -2,    -6,
-      -5,    -5,    -6,     4,    -6
+      -5,    -5,    -7,    -7,    -7,     1,     5,     6,    -7,     3,
+      -7,    -7,    -5,    -5,    -7,     6,    -7
   };
 
   const signed char
   Parser::yydefact_[] =
   {
-       0,     0,     8,     9,     0,     2,     4,     6,     0,     1,
-       0,     0,     7,     3,     5
+       0,     0,     9,     8,    10,     0,     0,     4,     6,     0,
+       1,     2,     0,     0,     7,     3,     5
   };
 
   const signed char
   Parser::yypgoto_[] =
   {
-      -6,    -6,     6,    -1,     0
+      -7,    -7,    10,     0,    -6
   };
 
   const signed char
   Parser::yydefgoto_[] =
   {
-       0,     4,     5,     6,     7
+       0,     5,     6,     7,     8
   };
 
   const signed char
   Parser::yytable_[] =
   {
-       1,    10,     2,     3,    12,     9,    10,     8,    11,    13,
-       0,    14
+       1,    10,     2,     3,     4,    11,    12,    16,    12,    14,
+      13,     9,    15
   };
 
   const signed char
   Parser::yycheck_[] =
   {
-       5,     3,     7,     8,     6,     0,     3,     1,     4,    10,
-      -1,    11
+       5,     0,     7,     8,     9,     0,     3,    13,     3,     6,
+       4,     1,    12
   };
 
   const signed char
   Parser::yystos_[] =
   {
-       0,     5,     7,     8,    10,    11,    12,    13,    11,     0,
-       3,     4,     6,    12,    13
+       0,     5,     7,     8,     9,    11,    12,    13,    14,    12,
+       0,     0,     3,     4,     6,    13,    14
   };
 
   const signed char
   Parser::yyr1_[] =
   {
-       0,     9,    10,    11,    11,    12,    12,    13,    13,    13
+       0,    10,    11,    12,    12,    13,    13,    14,    14,    14,
+      14
   };
 
   const signed char
   Parser::yyr2_[] =
   {
-       0,     2,     1,     3,     1,     3,     1,     3,     1,     1
+       0,     2,     2,     3,     1,     3,     1,     3,     1,     1,
+       1
   };
 
 
@@ -1186,8 +1059,8 @@ namespace Expr {
   const Parser::yytname_[] =
   {
   "\"end of file\"", "error", "\"invalid token\"", "\"+\"", "\"*\"",
-  "\"(\"", "\")\"", "\"number\"", "\"identifier\"", "$accept", "input",
-  "expr", "term", "factor", YY_NULLPTR
+  "\"(\"", "\")\"", "\"identifier\"", "\"number\"", "\"string\"",
+  "$accept", "start", "expr", "term", "factor", YY_NULLPTR
   };
 #endif
 
@@ -1196,7 +1069,8 @@ namespace Expr {
   const signed char
   Parser::yyrline_[] =
   {
-       0,    48,    48,    54,    58,    63,    67,    72,    75,    78
+       0,    42,    42,    45,    46,    49,    50,    53,    54,    55,
+      56
   };
 
   void
@@ -1261,10 +1135,10 @@ namespace Expr {
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8
+       5,     6,     7,     8,     9
     };
     // Last valid token kind.
-    const int code_max = 263;
+    const int code_max = 264;
 
     if (t <= 0)
       return symbol_kind::S_YYEOF;
@@ -1274,8 +1148,15 @@ namespace Expr {
       return symbol_kind::S_YYUNDEF;
   }
 
-#line 12 "bison.y"
+#line 15 "parser2.y"
 } // Expr
-#line 1280 "Parser.cpp"
+#line 1154 "Parser.cpp"
 
-#line 90 "bison.y"
+#line 59 "parser2.y"
+
+
+namespace Expr {
+    void Parser::error(const std::string& msg) {
+        std::cerr << "Parse error: " << msg << "\n";
+    }
+}

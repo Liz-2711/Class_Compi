@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/lexer.dir/main.cpp.o CMakeFiles/lexer.dir/Lexer.cpp.o -o lexer  /usr/local/lib/libreflex_static_lib.a

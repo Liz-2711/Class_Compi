@@ -117,24 +117,24 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named lexer
+# Target rules for targets named ExprAst
 
 # Build rule for target.
-lexer: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 lexer
-.PHONY : lexer
+ExprAst: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ExprAst
+.PHONY : ExprAst
 
 # fast build rule for target.
-lexer/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexer.dir/build.make CMakeFiles/lexer.dir/build
-.PHONY : lexer/fast
+ExprAst/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ExprAst.dir/build.make CMakeFiles/ExprAst.dir/build
+.PHONY : ExprAst/fast
 
 Lexer.o: Lexer.cpp.o
 .PHONY : Lexer.o
 
 # target to build an object file
 Lexer.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexer.dir/build.make CMakeFiles/lexer.dir/Lexer.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ExprAst.dir/build.make CMakeFiles/ExprAst.dir/Lexer.cpp.o
 .PHONY : Lexer.cpp.o
 
 Lexer.i: Lexer.cpp.i
@@ -142,7 +142,7 @@ Lexer.i: Lexer.cpp.i
 
 # target to preprocess a source file
 Lexer.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexer.dir/build.make CMakeFiles/lexer.dir/Lexer.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ExprAst.dir/build.make CMakeFiles/ExprAst.dir/Lexer.cpp.i
 .PHONY : Lexer.cpp.i
 
 Lexer.s: Lexer.cpp.s
@@ -150,15 +150,63 @@ Lexer.s: Lexer.cpp.s
 
 # target to generate assembly for a file
 Lexer.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexer.dir/build.make CMakeFiles/lexer.dir/Lexer.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ExprAst.dir/build.make CMakeFiles/ExprAst.dir/Lexer.cpp.s
 .PHONY : Lexer.cpp.s
+
+Parser.o: Parser.cpp.o
+.PHONY : Parser.o
+
+# target to build an object file
+Parser.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ExprAst.dir/build.make CMakeFiles/ExprAst.dir/Parser.cpp.o
+.PHONY : Parser.cpp.o
+
+Parser.i: Parser.cpp.i
+.PHONY : Parser.i
+
+# target to preprocess a source file
+Parser.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ExprAst.dir/build.make CMakeFiles/ExprAst.dir/Parser.cpp.i
+.PHONY : Parser.cpp.i
+
+Parser.s: Parser.cpp.s
+.PHONY : Parser.s
+
+# target to generate assembly for a file
+Parser.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ExprAst.dir/build.make CMakeFiles/ExprAst.dir/Parser.cpp.s
+.PHONY : Parser.cpp.s
+
+ast.o: ast.c.o
+.PHONY : ast.o
+
+# target to build an object file
+ast.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ExprAst.dir/build.make CMakeFiles/ExprAst.dir/ast.c.o
+.PHONY : ast.c.o
+
+ast.i: ast.c.i
+.PHONY : ast.i
+
+# target to preprocess a source file
+ast.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ExprAst.dir/build.make CMakeFiles/ExprAst.dir/ast.c.i
+.PHONY : ast.c.i
+
+ast.s: ast.c.s
+.PHONY : ast.s
+
+# target to generate assembly for a file
+ast.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ExprAst.dir/build.make CMakeFiles/ExprAst.dir/ast.c.s
+.PHONY : ast.c.s
 
 main.o: main.cpp.o
 .PHONY : main.o
 
 # target to build an object file
 main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexer.dir/build.make CMakeFiles/lexer.dir/main.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ExprAst.dir/build.make CMakeFiles/ExprAst.dir/main.cpp.o
 .PHONY : main.cpp.o
 
 main.i: main.cpp.i
@@ -166,7 +214,7 @@ main.i: main.cpp.i
 
 # target to preprocess a source file
 main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexer.dir/build.make CMakeFiles/lexer.dir/main.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ExprAst.dir/build.make CMakeFiles/ExprAst.dir/main.cpp.i
 .PHONY : main.cpp.i
 
 main.s: main.cpp.s
@@ -174,7 +222,7 @@ main.s: main.cpp.s
 
 # target to generate assembly for a file
 main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexer.dir/build.make CMakeFiles/lexer.dir/main.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ExprAst.dir/build.make CMakeFiles/ExprAst.dir/main.cpp.s
 .PHONY : main.cpp.s
 
 # Help Target
@@ -185,10 +233,16 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... lexer"
+	@echo "... ExprAst"
 	@echo "... Lexer.o"
 	@echo "... Lexer.i"
 	@echo "... Lexer.s"
+	@echo "... Parser.o"
+	@echo "... Parser.i"
+	@echo "... Parser.s"
+	@echo "... ast.o"
+	@echo "... ast.i"
+	@echo "... ast.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

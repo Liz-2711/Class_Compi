@@ -1,0 +1,76 @@
+%option lang = "C++"
+
+%decls %{
+#include <iostream>
+#include <string>
+#include <unordered_map>
+using std::string;
+using std::unordered_map;
+
+extern unordered_map<string,int> symbolTable;
+%}
+
+%{
+#include <cstddef>
+%}
+
+%node AstNode %abstract %typedef = {
+    %nocreate int line = {0};
+    %nocreate int column = {0};
+}
+
+%node Expr AstNode %abstract
+
+%node BinaryExpr Expr %abstract = {
+    Expr *expr1;
+    Expr *expr2;
+}
+
+%node AddExpr BinaryExpr
+%node SubExpr BinaryExpr
+%node MulExpr BinaryExpr
+%node DivExpr BinaryExpr
+%node ModExpr BinaryExpr
+
+%node NumberExpr Expr = {
+    long value;
+}
+
+%node IdentifierExpr Expr = {
+    string name;
+}
+
+%operation %virtual string toString(AstNode *self)
+
+toString(AstNode) { return "AstNode"; }
+toString(NumberExpr) { return std::to_string(value); }
+toString(IdentifierExpr) { return name; }
+toString(AddExpr) { return expr1->toString() + " + " + expr2->toString(); }
+toString(SubExpr) { return expr1->toString() + " - " + expr2->toString(); }
+toString(MulExpr) { return expr1->toString() + " * " + expr2->toString(); }
+toString(DivExpr) { return expr1->toString() + " / " + expr2->toString(); }
+toString(ModExpr) { return expr1->toString() + " % " + expr2->toString(); }
+
+%operation %virtual int evaluate(AstNode *self)
+
+evaluate(AstNode) {
+    std::cerr << "Error: Cannot evaluate base AstNode" << std::endl;
+    return 0;
+}
+
+evaluate(NumberExpr) { return value; }
+
+evaluate(IdentifierExpr) {
+    auto it = symbolTable.find(name);
+    if(it == symbolTable.end()) {
+        std::cerr << "Error: Variable '" << name << "' no definida" << std::endl;
+        return 0;
+    }
+    return it->second;
+}
+
+evaluate(AddExpr) { return expr1->evaluate() + expr2->evaluate(); }
+evaluate(SubExpr) { return expr1->evaluate() - expr2->evaluate(); }
+evaluate(MulExpr) { return expr1->evaluate() * expr2->evaluate(); }
+evaluate(DivExpr) { return expr1->evaluate() / expr2->evaluate(); }
+evaluate(ModExpr) { return expr1->evaluate() % expr2->evaluate(); }

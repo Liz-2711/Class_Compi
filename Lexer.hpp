@@ -11,12 +11,16 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
+#define REFLEX_OPTION_YYLTYPE             Expr::location
+#define REFLEX_OPTION_YYSTYPE             Expr::Parser::semantic_type
 #define REFLEX_OPTION_bison               true
+#define REFLEX_OPTION_bison_cc            true
+#define REFLEX_OPTION_bison_cc_namespace  Expr
+#define REFLEX_OPTION_bison_cc_parser     Parser
 #define REFLEX_OPTION_header_file         "Lexer.hpp"
 #define REFLEX_OPTION_lex                 nextToken
 #define REFLEX_OPTION_lexer               SampleLexer
 #define REFLEX_OPTION_outfile             "Lexer.cpp"
-#define REFLEX_OPTION_token_type          int
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -24,12 +28,12 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-#line 6 "lexer.l"
+#line 7 "lexer.l"
 
-    #include "Parser.hpp"
+#include <string>
+#include <iostream>
+#include "Parser.hpp"
 
-
-#ifdef __cplusplus
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -66,42 +70,19 @@ class SampleLexer : public reflex::AbstractLexer<reflex::Matcher> {
   {
   }
   static const int INITIAL = 0;
-  // the lexer function defined by SECTION 2
-  virtual int nextToken(void);
-  // lexer functions accepting new input to scan
-  int nextToken(const reflex::Input& input)
+  virtual int nextToken(Expr::Parser::semantic_type *lvalp)
   {
-    in(input);
-    return nextToken();
+    return nextToken(*lvalp);
   }
-  int nextToken(const reflex::Input& input, std::ostream *os)
-  {
-    in(input);
-    if (os)
-      out(*os);
-    return nextToken();
-  }
+  // the bison-cc lexer function defined by SECTION 2
+  virtual int nextToken(Expr::Parser::semantic_type& yylval);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-//  BISON                                                                     //
+//  BISON C++                                                                 //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-extern SampleLexer YY_SCANNER;
-
-#ifndef YY_EXTERN_C
-#define YY_EXTERN_C
-#endif
-
-#else // !__cplusplus
-
-#undef YY_EXTERN_C
-#define YY_EXTERN_C
-
-#endif // __cplusplus
-
-YY_EXTERN_C int yylex(void);
 
 #endif

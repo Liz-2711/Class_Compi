@@ -1,62 +1,90 @@
-
-%language "c++"
+%language "C++"
 %require "3.2"
 
+%token OP_PLUS "+"
+%token OP_MULT "*"
+%token OPEN_PAR "("
+%token CLOSE_PAR ")"
+%token<int> NUMBER "number"
+%token<std::string> IDENTIFIER "identifier"
 
+%define parse.error verbose
+%define api.namespace {Expr}
+%define api.parser.class {Parser}
+%define api.value.type variant
 
-%token OP_MULT
-%token OP_PLUS
-%token OPEN_PAR
-%token CLOSE_PAR
-%token NUMBER
+%type<int> input expr term factor
 
+%parse-param {SampleLexer& lexer}
 
-
-%{
-    
+%code requires{
     #include <string>
-    #include "Parser.hpp"
+    #include <unordered_map>  
+    class SampleLexer;
+}
 
-using token = yy::parser::token;
-std::vector<int> tokens= 
-token::NUMBER, token::OP_PLUS, token::NUMBER
-
-    int yylex(int *val);
-
-
-    namspace yy{
-
-        void parser::error(const std::string& msg)
-        {
-            throw parser::syntax_error(msg)
+%code {
+    #include "Lexer.hpp"
+    #include <iostream>
+    
+    // Tabla de variables global usando unordered_map
+    std::unordered_map<std::string, int> vars;  
+    
+    namespace Expr {
+        int yylex(Parser::semantic_type* yylval, SampleLexer& lexer) {
+            return lexer.nextToken(yylval);
+        }
+        
+        void Parser::error(const std::string& msg) {
+            std::cerr << "Error de parsing: " << msg << std::endl;
         }
     }
+    
+    #define yylex(yylval) Expr::yylex(yylval, lexer)
+}
 
-    %}
 %%
 
-expr: expr  OP_PLUS term {}// al hacer un reduce, se hace lo de brackets//significa que estos estan en el stack
-// si tiene simbolos asociados, se puede calcular el atributo en base al pop
-//cada atributo va a tener bullpointer
-//se sacan los 3 atributos 
+input: expr { 
+    std::cout << "Resultado: " << $1 << std::endl; 
+    $$ = $1; 
+}
+;
 
-    |term {/*c++ code */} //se ejecuta la acction 
-    ;
+expr: expr OP_PLUS term { 
+    std::cout << "Evaluando: " << $1 << " + " << $3 << std::endl;
+    $$ = $1 + $3; 
+}
+| term { 
+    $$ = $1; 
+}
+;
 
+term: term OP_MULT factor { 
+    std::cout << "Evaluando: " << $1 << " * " << $3 << std::endl;
+    $$ = $1 * $3; 
+}
+| factor { 
+    $$ = $1; 
+}
+;
 
-    //cada accion retorna un nodo 
-    term: term OP_MULT factor 
-    |factor 
-    ;
-
-    factor: OPEN_PAR expr CLOSE_PAR
-        |NUMBER
-        ;
-
-/*no se debe escribir el propio enum, hay que usar el enum de bision */
-   
-
-
-    
+factor: OPEN_PAR expr CLOSE_PAR { 
+    $$ = $2; 
+}
+| NUMBER { 
+    $$ = std::stoi(lexer.str()); 
+}
+| IDENTIFIER {
+    std::string var = lexer.str();
+    auto it = vars.find(var);
+    if(it == vars.end()){
+        std::cerr << "Error: Variable '" << var << "' no definida" << std::endl;
+        throw std::runtime_error("Variable no encontrada: " + var);
+    }
+    std::cout << "Usando variable '" << var << "' = " << it->second << std::endl;
+    $$ = it->second;
+}
+;
 
 %%
