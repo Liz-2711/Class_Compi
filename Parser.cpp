@@ -42,7 +42,7 @@
 
 
 // Unqualified %code blocks.
-#line 39 "bison.y"
+#line 40 "bison.y"
 
     #include "Lexer.hpp"
     #include <iostream>
@@ -168,10 +168,13 @@ namespace ExprParser {
     switch (this->kind ())
     {
       case symbol_kind::S_input: // input
+        value.copy< AstNode* > (YY_MOVE (that.value));
+        break;
+
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
-        value.copy< AstNode* > (YY_MOVE (that.value));
+        value.copy< Expr* > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_NUMBER: // "number"
@@ -214,10 +217,13 @@ namespace ExprParser {
     switch (this->kind ())
     {
       case symbol_kind::S_input: // input
+        value.move< AstNode* > (YY_MOVE (s.value));
+        break;
+
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
-        value.move< AstNode* > (YY_MOVE (s.value));
+        value.move< Expr* > (YY_MOVE (s.value));
         break;
 
       case symbol_kind::S_NUMBER: // "number"
@@ -329,10 +335,13 @@ namespace ExprParser {
     switch (that.kind ())
     {
       case symbol_kind::S_input: // input
+        value.YY_MOVE_OR_COPY< AstNode* > (YY_MOVE (that.value));
+        break;
+
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
-        value.YY_MOVE_OR_COPY< AstNode* > (YY_MOVE (that.value));
+        value.YY_MOVE_OR_COPY< Expr* > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_NUMBER: // "number"
@@ -359,10 +368,13 @@ namespace ExprParser {
     switch (that.kind ())
     {
       case symbol_kind::S_input: // input
+        value.move< AstNode* > (YY_MOVE (that.value));
+        break;
+
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
-        value.move< AstNode* > (YY_MOVE (that.value));
+        value.move< Expr* > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_NUMBER: // "number"
@@ -389,10 +401,13 @@ namespace ExprParser {
     switch (that.kind ())
     {
       case symbol_kind::S_input: // input
+        value.copy< AstNode* > (that.value);
+        break;
+
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
-        value.copy< AstNode* > (that.value);
+        value.copy< Expr* > (that.value);
         break;
 
       case symbol_kind::S_NUMBER: // "number"
@@ -417,10 +432,13 @@ namespace ExprParser {
     switch (that.kind ())
     {
       case symbol_kind::S_input: // input
+        value.move< AstNode* > (that.value);
+        break;
+
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
-        value.move< AstNode* > (that.value);
+        value.move< Expr* > (that.value);
         break;
 
       case symbol_kind::S_NUMBER: // "number"
@@ -685,10 +703,13 @@ namespace ExprParser {
       switch (yyr1_[yyn])
     {
       case symbol_kind::S_input: // input
+        yylhs.value.emplace< AstNode* > ();
+        break;
+
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
-        yylhs.value.emplace< AstNode* > ();
+        yylhs.value.emplace< Expr* > ();
         break;
 
       case symbol_kind::S_NUMBER: // "number"
@@ -714,58 +735,109 @@ namespace ExprParser {
           switch (yyn)
             {
   case 2: // input: expr
-#line 61 "bison.y"
+#line 62 "bison.y"
             { 
-    std::cout << "Resultado: " << yystack_[0].value.as < AstNode* > () << std::endl; 
-    yylhs.value.as < AstNode* > () = yystack_[0].value.as < AstNode* > (); 
+    std::cout << "\n=== Resultado ===" << std::endl;
+    std::cout << "Expresión: " << yystack_[0].value.as < Expr* > ()->toString() << std::endl;
+    
+    
+    VarTable tempVars;
+    for (const auto& pair : vars) {
+        tempVars[pair.first] = static_cast<long>(pair.second);
+    }
+    
+    long resultado = yystack_[0].value.as < Expr* > ()->evaluate(&tempVars);
+    
+    std::cout << "Evaluación: " << resultado << std::endl;
+    
+    yylhs.value.as < AstNode* > () = yystack_[0].value.as < Expr* > (); 
 }
-#line 723 "Parser.cpp"
+#line 756 "Parser.cpp"
     break;
 
   case 3: // expr: expr "+" term
-#line 67 "bison.y"
-                      { yylhs.value.as < AstNode* > () = new AddExpr(yystack_[2].value.as < AstNode* > (), yystack_[0].value.as < AstNode* > ()); }
-#line 729 "Parser.cpp"
-    break;
-
-  case 4: // expr: term
-#line 68 "bison.y"
-                      { yylhs.value.as < AstNode* > () = yystack_[0].value.as < AstNode* > (); }
-#line 735 "Parser.cpp"
-    break;
-
-  case 5: // term: term "*" factor
-#line 72 "bison.y"
-                        { yylhs.value.as < AstNode* > () = new MulExpr(yystack_[2].value.as < AstNode* > (), yystack_[0].value.as < AstNode* > ()); }
-#line 741 "Parser.cpp"
-    break;
-
-  case 6: // term: factor
-#line 73 "bison.y"
-                        { yylhs.value.as < AstNode* > () = yystack_[0].value.as < AstNode* > (); }
-#line 747 "Parser.cpp"
-    break;
-
-  case 7: // factor: "number"
-#line 77 "bison.y"
-                { yylhs.value.as < AstNode* > () = new NumberExpr(yystack_[0].value.as < long > ()); }
-#line 753 "Parser.cpp"
-    break;
-
-  case 8: // factor: "identifier"
-#line 78 "bison.y"
-                { yylhs.value.as < AstNode* > () = new IdentifierExpr(yystack_[0].value.as < std::string > ()); }
-#line 759 "Parser.cpp"
-    break;
-
-  case 9: // factor: "(" expr ")"
 #line 79 "bison.y"
-                            { yylhs.value.as < AstNode* > () = yystack_[1].value.as < AstNode* > (); }
-#line 765 "Parser.cpp"
+                        { 
+    yylhs.value.as < Expr* > () = new AddExpr(yystack_[2].value.as < Expr* > (), yystack_[0].value.as < Expr* > ());
+}
+#line 764 "Parser.cpp"
+    break;
+
+  case 4: // expr: expr "-" term
+#line 82 "bison.y"
+                     {
+    yylhs.value.as < Expr* > () = new SubExpr(yystack_[2].value.as < Expr* > (), yystack_[0].value.as < Expr* > ());
+}
+#line 772 "Parser.cpp"
+    break;
+
+  case 5: // expr: term
+#line 85 "bison.y"
+       { 
+    yylhs.value.as < Expr* > () = yystack_[0].value.as < Expr* > (); 
+}
+#line 780 "Parser.cpp"
+    break;
+
+  case 6: // term: term "*" factor
+#line 90 "bison.y"
+                          { 
+    yylhs.value.as < Expr* > () = new MulExpr(yystack_[2].value.as < Expr* > (), yystack_[0].value.as < Expr* > ());
+}
+#line 788 "Parser.cpp"
+    break;
+
+  case 7: // term: term "/" factor
+#line 93 "bison.y"
+                     {
+    yylhs.value.as < Expr* > () = new DivExpr(yystack_[2].value.as < Expr* > (), yystack_[0].value.as < Expr* > ());
+}
+#line 796 "Parser.cpp"
+    break;
+
+  case 8: // term: term "%" factor
+#line 96 "bison.y"
+                     {
+    yylhs.value.as < Expr* > () = new ModExpr(yystack_[2].value.as < Expr* > (), yystack_[0].value.as < Expr* > ());
+}
+#line 804 "Parser.cpp"
+    break;
+
+  case 9: // term: factor
+#line 99 "bison.y"
+         { 
+    yylhs.value.as < Expr* > () = yystack_[0].value.as < Expr* > (); 
+}
+#line 812 "Parser.cpp"
+    break;
+
+  case 10: // factor: "number"
+#line 104 "bison.y"
+               { 
+    // Sección 5.3: El valor $1 es de tipo 'long'
+    yylhs.value.as < Expr* > () = new NumberExpr(yystack_[0].value.as < long > ());
+}
+#line 821 "Parser.cpp"
+    break;
+
+  case 11: // factor: "identifier"
+#line 108 "bison.y"
+             {
+    yylhs.value.as < Expr* > () = new IdentifierExpr(yystack_[0].value.as < std::string > ());
+}
+#line 829 "Parser.cpp"
+    break;
+
+  case 12: // factor: "(" expr ")"
+#line 111 "bison.y"
+                          { 
+    yylhs.value.as < Expr* > () = yystack_[1].value.as < Expr* > (); 
+}
+#line 837 "Parser.cpp"
     break;
 
 
-#line 769 "Parser.cpp"
+#line 841 "Parser.cpp"
 
             default:
               break;
@@ -1120,21 +1192,23 @@ namespace ExprParser {
   const signed char
   Parser::yypact_[] =
   {
-      -7,    -7,    -8,    -8,     2,     4,     1,    -8,    -3,    -8,
-      -7,    -7,    -8,     1,    -8
+      -7,    -7,    -8,    -8,     9,    10,     1,    -8,    -3,    -8,
+      -7,    -7,    -7,    -7,    -7,    -8,     1,     1,    -8,    -8,
+      -8
   };
 
   const signed char
   Parser::yydefact_[] =
   {
-       0,     0,     7,     8,     0,     2,     4,     6,     0,     1,
-       0,     0,     9,     3,     5
+       0,     0,    10,    11,     0,     2,     5,     9,     0,     1,
+       0,     0,     0,     0,     0,    12,     3,     4,     6,     7,
+       8
   };
 
   const signed char
   Parser::yypgoto_[] =
   {
-      -8,    -8,     7,    -1,     0
+      -8,    -8,    13,     6,    -2
   };
 
   const signed char
@@ -1146,34 +1220,37 @@ namespace ExprParser {
   const signed char
   Parser::yytable_[] =
   {
-      10,     1,     9,     2,     3,    11,    12,    10,     8,    13,
-       0,    14
+      10,     1,    11,     2,     3,    12,    15,    13,    14,     9,
+      18,    19,    20,    10,     8,    11,    16,    17
   };
 
   const signed char
   Parser::yycheck_[] =
   {
-       3,     8,     0,    10,    11,     4,     9,     3,     1,    10,
-      -1,    11
+       3,     8,     5,    10,    11,     4,     9,     6,     7,     0,
+      12,    13,    14,     3,     1,     5,    10,    11
   };
 
   const signed char
   Parser::yystos_[] =
   {
        0,     8,    10,    11,    13,    14,    15,    16,    14,     0,
-       3,     4,     9,    15,    16
+       3,     5,     4,     6,     7,     9,    15,    15,    16,    16,
+      16
   };
 
   const signed char
   Parser::yyr1_[] =
   {
-       0,    12,    13,    14,    14,    15,    15,    16,    16,    16
+       0,    12,    13,    14,    14,    14,    15,    15,    15,    15,
+      16,    16,    16
   };
 
   const signed char
   Parser::yyr2_[] =
   {
-       0,     2,     1,     3,     1,     3,     1,     1,     1,     3
+       0,     2,     1,     3,     3,     1,     3,     3,     3,     1,
+       1,     1,     3
   };
 
 
@@ -1194,7 +1271,8 @@ namespace ExprParser {
   const signed char
   Parser::yyrline_[] =
   {
-       0,    61,    61,    67,    68,    72,    73,    77,    78,    79
+       0,    62,    62,    79,    82,    85,    90,    93,    96,    99,
+     104,   108,   111
   };
 
   void
@@ -1274,6 +1352,6 @@ namespace ExprParser {
 
 #line 19 "bison.y"
 } // ExprParser
-#line 1278 "Parser.cpp"
+#line 1356 "Parser.cpp"
 
-#line 83 "bison.y"
+#line 116 "bison.y"

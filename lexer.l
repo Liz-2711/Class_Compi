@@ -13,11 +13,13 @@
 %%
 
 [0-9]+                  { 
+    yylval.emplace<long>(std::stol(str()));
     std::cout << "Número detectado: " << str() << std::endl; 
     return ExprParser::Parser::token::NUMBER; 
 }
 
 [a-zA-Z_][a-zA-Z0-9_]*  { 
+    yylval.emplace<std::string>(str());
     std::cout << "Identificador detectado: " << str() << std::endl; 
     return ExprParser::Parser::token::IDENTIFIER; 
 }

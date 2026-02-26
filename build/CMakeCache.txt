@@ -233,6 +233,21 @@ ExprAst_IS_TOP_LEVEL:STATIC=ON
 //Value Computed by CMake
 ExprAst_SOURCE_DIR:STATIC=/home/lizjrz/Desktop/#1/Class_Work
 
+//path to the flex executable
+FLEX_EXECUTABLE:FILEPATH=FLEX_EXECUTABLE-NOTFOUND
+
+//Path to the flex headers
+FLEX_INCLUDE_DIR:PATH=FLEX_INCLUDE_DIR-NOTFOUND
+
+//Path to the fl library
+FL_LIBRARY:FILEPATH=FL_LIBRARY-NOTFOUND
+
+//Path to a program.
+REFLEX_EXECUTABLE:FILEPATH=/usr/local/bin/reflex
+
+//Path to a library.
+REFLEX_LIBRARY:FILEPATH=/usr/local/lib/libreflex.a
+
 //The directory containing a CMake configuration file for Reflex.
 Reflex_DIR:PATH=/usr/local/lib/cmake/reflex
 
@@ -395,6 +410,12 @@ CMAKE_UNAME:INTERNAL=/usr/bin/uname
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 //Details about finding BISON
 FIND_PACKAGE_MESSAGE_DETAILS_BISON:INTERNAL=[/usr/bin/bison][v3.8.2()]
+//ADVANCED property for variable: FLEX_EXECUTABLE
+FLEX_EXECUTABLE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: FLEX_INCLUDE_DIR
+FLEX_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: FL_LIBRARY
+FL_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: TREECC_EXECUTABLE
 TREECC_EXECUTABLE-ADVANCED:INTERNAL=1
 

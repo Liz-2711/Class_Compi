@@ -78,54 +78,56 @@ int SampleLexer::nextToken(ExprParser::Parser::semantic_type& yylval)
           case 1: // rule lexer.l:15: [0-9]+ :
 #line 15 "lexer.l"
 {
+    yylval.emplace<long>(std::stol(str()));
     std::cout << "Número detectado: " << str() << std::endl;
     return ExprParser::Parser::token::NUMBER;
 }
 
             break;
-          case 2: // rule lexer.l:20: [a-zA-Z_][a-zA-Z0-9_]* :
-#line 20 "lexer.l"
+          case 2: // rule lexer.l:21: [a-zA-Z_][a-zA-Z0-9_]* :
+#line 21 "lexer.l"
 {
+    yylval.emplace<std::string>(str());
     std::cout << "Identificador detectado: " << str() << std::endl;
     return ExprParser::Parser::token::IDENTIFIER;
 }
 
             break;
-          case 3: // rule lexer.l:25: "+" :
-#line 25 "lexer.l"
+          case 3: // rule lexer.l:27: "+" :
+#line 27 "lexer.l"
 { return ExprParser::Parser::token::OP_PLUS; }
             break;
-          case 4: // rule lexer.l:26: "-" :
-#line 26 "lexer.l"
+          case 4: // rule lexer.l:28: "-" :
+#line 28 "lexer.l"
 { return ExprParser::Parser::token::OP_MINUS; }
             break;
-          case 5: // rule lexer.l:27: "*" :
-#line 27 "lexer.l"
+          case 5: // rule lexer.l:29: "*" :
+#line 29 "lexer.l"
 { return ExprParser::Parser::token::OP_MULT; }
             break;
-          case 6: // rule lexer.l:28: "/" :
-#line 28 "lexer.l"
+          case 6: // rule lexer.l:30: "/" :
+#line 30 "lexer.l"
 { return ExprParser::Parser::token::OP_DIV; }
             break;
-          case 7: // rule lexer.l:29: "%" :
-#line 29 "lexer.l"
+          case 7: // rule lexer.l:31: "%" :
+#line 31 "lexer.l"
 { return ExprParser::Parser::token::OP_MOD; }
             break;
-          case 8: // rule lexer.l:30: "(" :
-#line 30 "lexer.l"
+          case 8: // rule lexer.l:32: "(" :
+#line 32 "lexer.l"
 { return ExprParser::Parser::token::OPEN_PAR; }
             break;
-          case 9: // rule lexer.l:31: ")" :
-#line 31 "lexer.l"
+          case 9: // rule lexer.l:33: ")" :
+#line 33 "lexer.l"
 { return ExprParser::Parser::token::CLOSE_PAR; }
             break;
-          case 10: // rule lexer.l:32: [ \t\n\r]+ :
-#line 32 "lexer.l"
+          case 10: // rule lexer.l:34: [ \t\n\r]+ :
+#line 34 "lexer.l"
 { /* ignorar espacios */ }
 
             break;
-          case 11: // rule lexer.l:34: . :
-#line 34 "lexer.l"
+          case 11: // rule lexer.l:36: . :
+#line 36 "lexer.l"
 {
     std::cerr << "Carácter no reconocido: " << str() << std::endl;
     return -1;

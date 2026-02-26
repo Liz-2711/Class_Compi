@@ -45,11 +45,11 @@
 #ifndef YY_YY_PARSER_HPP_INCLUDED
 # define YY_YY_PARSER_HPP_INCLUDED
 // "%code requires" blocks.
-#line 32 "bison.y"
+#line 33 "bison.y"
 
     #include <string>
     #include <unordered_map>  
-    #include "tree.h"
+    #include "tree.hpp" 
     class SampleLexer;
 
 #line 56 "Parser.hpp"
@@ -385,16 +385,18 @@ namespace ExprParser {
     union union_type
     {
       // input
+      char dummy1[sizeof (AstNode*)];
+
       // expr
       // term
       // factor
-      char dummy1[sizeof (AstNode*)];
+      char dummy2[sizeof (Expr*)];
 
       // "number"
-      char dummy2[sizeof (long)];
+      char dummy3[sizeof (long)];
 
       // "identifier"
-      char dummy3[sizeof (std::string)];
+      char dummy4[sizeof (std::string)];
     };
 
     /// The size of the largest semantic type.
@@ -517,10 +519,13 @@ namespace ExprParser {
         switch (this->kind ())
     {
       case symbol_kind::S_input: // input
+        value.move< AstNode* > (std::move (that.value));
+        break;
+
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
-        value.move< AstNode* > (std::move (that.value));
+        value.move< Expr* > (std::move (that.value));
         break;
 
       case symbol_kind::S_NUMBER: // "number"
@@ -559,6 +564,18 @@ namespace ExprParser {
       {}
 #else
       basic_symbol (typename Base::kind_type t, const AstNode*& v)
+        : Base (t)
+        , value (v)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, Expr*&& v)
+        : Base (t)
+        , value (std::move (v))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const Expr*& v)
         : Base (t)
         , value (v)
       {}
@@ -613,10 +630,13 @@ namespace ExprParser {
 switch (yykind)
     {
       case symbol_kind::S_input: // input
+        value.template destroy< AstNode* > ();
+        break;
+
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
-        value.template destroy< AstNode* > ();
+        value.template destroy< Expr* > ();
         break;
 
       case symbol_kind::S_NUMBER: // "number"
@@ -1291,7 +1311,7 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 11,     ///< Last index in yytable_.
+      yylast_ = 17,     ///< Last index in yytable_.
       yynnts_ = 5,  ///< Number of nonterminal symbols.
       yyfinal_ = 9 ///< Termination state number.
     };
@@ -1305,7 +1325,7 @@ switch (yykind)
 
 #line 19 "bison.y"
 } // ExprParser
-#line 1309 "Parser.hpp"
+#line 1329 "Parser.hpp"
 
 
 

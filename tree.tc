@@ -1,30 +1,119 @@
 %option lang = "C++"
 
 %decls %{
-#include <string>
-using stdstring = std::string;
+    #include <iostream>
+    #include <string>
+    #include <unordered_map>
+    
+    using StdString = std::string;
+    using VarTable = std::unordered_map<StdString, long>;
 %}
-%node AstNode %abstract %typedef
+
+%{
+     #include "tree.hpp"
+    #include <iostream>
+%}
+
+%node AstNode %abstract %typedef = {
+ %nocreate int line = {0};
+ %nocreate int column = {0};
+}
 
 %node Expr AstNode %abstract
 
+// Los campos se llaman left y right
 %node BinaryExpr Expr %abstract = {
-    Expr *expr1;
-    Expr *expr2;
+    Expr *left;
+    Expr *right;
 }
 
 %node AddExpr BinaryExpr
+%node SubExpr BinaryExpr
+%node MulExpr BinaryExpr
+%node DivExpr BinaryExpr
+%node ModExpr BinaryExpr
 
 %node NumberExpr Expr = {
-    int value;
+    long value;
 }
 
-%operation %virtual int evaluate(AstNode *this)
+%node IdentifierExpr Expr = {
+    StdString name;
+}
+// se le agrega la tabla de variables. 
+%operation %virtual long evaluate(AstNode *this, VarTable *vars)
 
+//USAR left y right
 evaluate(AddExpr) {
-    return expr1->evaluate() + expr2->evaluate();
+    return left->evaluate(vars) + right->evaluate(vars);
+}
+
+evaluate(SubExpr) {
+    return left->evaluate(vars) - right->evaluate(vars);
+}
+
+evaluate(MulExpr) {
+    return left->evaluate(vars) * right->evaluate(vars);
+}
+
+evaluate(DivExpr) {
+    long rightVal = right->evaluate(vars);
+    if (rightVal == 0) {
+        std::cerr << "Error: División por cero" << std::endl;
+        return 0;
+    }
+    return left->evaluate(vars) / rightVal;
+}
+
+evaluate(ModExpr) {
+    long rightVal = right->evaluate(vars);
+    if (rightVal == 0) {
+        std::cerr << "Error: Módulo por cero" << std::endl;
+        return 0;
+    }
+    return left->evaluate(vars) % rightVal;
 }
 
 evaluate(NumberExpr) {
     return value;
+}
+
+evaluate(IdentifierExpr) {
+    auto it = vars->find(name);
+    if (it == vars->end()) {
+        std::cerr << "Error: Variable '" << name << "' no definida" << std::endl;
+        return 0;
+    }
+    return it->second;
+}
+
+
+%operation %virtual StdString toString(AstNode *this)
+
+toString(AddExpr) {
+    return left->toString() + " + " + right->toString();
+}
+
+toString(SubExpr) {
+    return left->toString() + " - " + right->toString();
+}
+
+toString(MulExpr) {
+    return left->toString() + " * " + right->toString();
+}
+
+toString(DivExpr) {
+    return left->toString() + " / " + right->toString();
+}
+
+toString(ModExpr) {
+    return left->toString() + " % " + right->toString();
+}
+
+toString(NumberExpr) {
+    return std::to_string(value);
+}
+
+toString(IdentifierExpr) {
+    return name;
 }

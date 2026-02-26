@@ -177,30 +177,6 @@ Parser.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ExprAst.dir/build.make CMakeFiles/ExprAst.dir/Parser.cpp.s
 .PHONY : Parser.cpp.s
 
-ast.o: ast.c.o
-.PHONY : ast.o
-
-# target to build an object file
-ast.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ExprAst.dir/build.make CMakeFiles/ExprAst.dir/ast.c.o
-.PHONY : ast.c.o
-
-ast.i: ast.c.i
-.PHONY : ast.i
-
-# target to preprocess a source file
-ast.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ExprAst.dir/build.make CMakeFiles/ExprAst.dir/ast.c.i
-.PHONY : ast.c.i
-
-ast.s: ast.c.s
-.PHONY : ast.s
-
-# target to generate assembly for a file
-ast.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ExprAst.dir/build.make CMakeFiles/ExprAst.dir/ast.c.s
-.PHONY : ast.c.s
-
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -225,6 +201,30 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ExprAst.dir/build.make CMakeFiles/ExprAst.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+tree.o: tree.cpp.o
+.PHONY : tree.o
+
+# target to build an object file
+tree.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ExprAst.dir/build.make CMakeFiles/ExprAst.dir/tree.cpp.o
+.PHONY : tree.cpp.o
+
+tree.i: tree.cpp.i
+.PHONY : tree.i
+
+# target to preprocess a source file
+tree.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ExprAst.dir/build.make CMakeFiles/ExprAst.dir/tree.cpp.i
+.PHONY : tree.cpp.i
+
+tree.s: tree.cpp.s
+.PHONY : tree.s
+
+# target to generate assembly for a file
+tree.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ExprAst.dir/build.make CMakeFiles/ExprAst.dir/tree.cpp.s
+.PHONY : tree.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -240,12 +240,12 @@ help:
 	@echo "... Parser.o"
 	@echo "... Parser.i"
 	@echo "... Parser.s"
-	@echo "... ast.o"
-	@echo "... ast.i"
-	@echo "... ast.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... tree.o"
+	@echo "... tree.i"
+	@echo "... tree.s"
 .PHONY : help
 
 

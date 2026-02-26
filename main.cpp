@@ -3,7 +3,7 @@
 #include <unordered_map>  
 #include "Lexer.hpp"
 #include "Parser.hpp"
-#include "tree.h"
+#include "tree.hpp"
 
 // Variable externa definida en parser.y
 extern std::unordered_map<std::string, int> vars; 

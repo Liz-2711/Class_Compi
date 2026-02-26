@@ -1,87 +1,84 @@
-# cmake_minimum_required(VERSION 3.15)
-# project(ExprAst)
-
-# set(CMAKE_CXX_STANDARD 17)
-# set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-# set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
-
-# find_package(Reflex REQUIRED)
-# find_package(BISON REQUIRED)
-# find_package(TreeCC REQUIRED)
-
-# message(STATUS "TreeCC found: ${TREECC_EXECUTABLE}")
-# message(STATUS "TreeCC version: ${TREECC_VERSION}")
-
 cmake_minimum_required(VERSION 3.15)
 project(ExprAst)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Para encontrar FindTreeCC.cmake
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+# ------------------------------
+# 2. Buscar herramientas
+# ------------------------------
 
-
-#Dependencias
-
-find_package(Reflex REQUIRED)
+# Bison
 find_package(BISON REQUIRED)
-find_package(TreeCC REQUIRED)
 
+# TreeCC
+find_program(TREECC_EXECUTABLE treecc)
+if(NOT TREECC_EXECUTABLE)
+    message(FATAL_ERROR "No se encontró el ejecutable 'treecc'. Asegúrate de que está instalado y en el PATH.")
+endif()
 message(STATUS "TreeCC found: ${TREECC_EXECUTABLE}")
-message(STATUS "TreeCC version: ${TREECC_VERSION}")
-message(STATUS "Source Dir: ${CMAKE_SOURCE_DIR}")
-message(STATUS "Binary Dir: ${CMAKE_BINARY_DIR}")
 
+# Re/flex
+find_program(REFLEX_EXECUTABLE reflex)
+if(NOT REFLEX_EXECUTABLE)
+    message(FATAL_ERROR "No se encontró el ejecutable 'reflex'. Asegúrate de que está instalado y en el PATH.")
+endif()
+message(STATUS "Re/flex found: ${REFLEX_EXECUTABLE}")
 
-# Archivos de entrada
+# Librería de Re/flex
+find_library(REFLEX_LIBRARY
+    NAMES reflex libreflex
+    PATHS /usr/local/lib /usr/lib
+)
+if(NOT REFLEX_LIBRARY)
+    message(FATAL_ERROR "No se encontró la librería de Re/flex")
+endif()
+message(STATUS "Re/flex library: ${REFLEX_LIBRARY}")
 
-set(LEXER_INPUT ${CMAKE_SOURCE_DIR}/lexer.l)
-set(PARSER_INPUT ${CMAKE_SOURCE_DIR}/parser.y)
-set(TREE_INPUT   ${CMAKE_SOURCE_DIR}/ast.tree)
+# ------------------------------
+# 3. Archivos de entrada y salida
+# ------------------------------
+set(LEXER_INPUT   ${CMAKE_SOURCE_DIR}/lexer.l)
+set(PARSER_INPUT  ${CMAKE_SOURCE_DIR}/bison.y)
+set(TREE_INPUT    ${CMAKE_SOURCE_DIR}/tree.tc)
 
+set(LEXER_CPP     ${CMAKE_BINARY_DIR}/Lexer.cpp)
+set(LEXER_HPP     ${CMAKE_BINARY_DIR}/Lexer.hpp)
 
-# Archivos generados (build)
+set(PARSER_CPP    ${CMAKE_BINARY_DIR}/Parser.cpp)
+set(PARSER_HPP    ${CMAKE_BINARY_DIR}/Parser.hpp)
 
-set(LEXER_CPP    ${CMAKE_BINARY_DIR}/Lexer.cpp)
-set(LEXER_HPP    ${CMAKE_BINARY_DIR}/Lexer.hpp)
+set(TREECC_CPP    ${CMAKE_BINARY_DIR}/tree.cpp)
+set(TREECC_HPP    ${CMAKE_BINARY_DIR}/tree.hpp)
 
-set(PARSER_CPP   ${CMAKE_BINARY_DIR}/Parser.cpp)
-set(PARSER_HPP   ${CMAKE_BINARY_DIR}/Parser.hpp)
+# ------------------------------
+# 4. Generación de código
+# ------------------------------
 
-set(TREECC_CPP   ${CMAKE_BINARY_DIR}/ast.cpp)
-set(TREECC_HPP   ${CMAKE_BINARY_DIR}/ast.hpp)
-
-
-# Reflex (lexer)
-
+# --- Lexer (Re/flex) ---
 add_custom_command(
     OUTPUT ${LEXER_CPP} ${LEXER_HPP}
-    COMMAND Reflex::Reflex
-            -o ${LEXER_CPP}
+    COMMAND ${REFLEX_EXECUTABLE}
+            --bison
             --header-file=${LEXER_HPP}
+            --outfile=${LEXER_CPP}
             ${LEXER_INPUT}
     DEPENDS ${LEXER_INPUT}
-    COMMENT "Generating lexer with Reflex"
+    COMMENT "Generating Lexer with Re/flex for Bison"
 )
 
-
-# Bison (parser)
-
+# --- Parser (Bison) ---
 add_custom_command(
     OUTPUT ${PARSER_CPP} ${PARSER_HPP}
-    COMMAND BISON::Bison
+    COMMAND ${BISON_EXECUTABLE}
             -d
             -o ${PARSER_CPP}
             ${PARSER_INPUT}
     DEPENDS ${PARSER_INPUT}
-    COMMENT "Generating parser with Bison"
+    COMMENT "Generating Parser with Bison"
 )
 
-
-# TreeCC (AST)
-
+# --- TreeCC (AST) ---
 add_custom_command(
     OUTPUT ${TREECC_CPP} ${TREECC_HPP}
     COMMAND ${TREECC_EXECUTABLE}
@@ -92,9 +89,9 @@ add_custom_command(
     COMMENT "Generating AST with TreeCC"
 )
 
-
-# Ejecutable final
-
+# ------------------------------
+# 5. Crear ejecutable
+# ------------------------------
 add_executable(${PROJECT_NAME}
     main.cpp
     ${LEXER_CPP}
@@ -102,13 +99,15 @@ add_executable(${PROJECT_NAME}
     ${TREECC_CPP}
 )
 
-# Incluir headers generados
+# ------------------------------
+# 6. Incluir directorios
+# ------------------------------
 target_include_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_SOURCE_DIR}
-    ${CMAKE_BINARY_DIR}
+    ${CMAKE_SOURCE_DIR}   # tus headers originales
+    ${CMAKE_BINARY_DIR}   # headers generados por Re/flex, Bison y TreeCC
 )
 
-# Librerías
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    Reflex::ReflexLibStatic
-)
+# ------------------------------
+# 7. Link con librerías
+# ------------------------------
+target_link_libraries(${PROJECT_NAME} PRIVATE ${REFLEX_LIBRARY})

@@ -1,4 +1,9 @@
-/* tree.c.  Generated automatically by treecc */
+/* tree.cpp.  Generated automatically by treecc */
+#line 12 "tree.tc"
+
+     #include "tree.hpp"
+    #include <iostream>
+#line 7 "tree.cpp"
 
 #include <cstddef>
 
@@ -279,7 +284,7 @@ long YYNODESTATE::currLinenum() const
 }
 
 #endif
-#line 283 "tree.c"
+#line 288 "tree.cpp"
 void *AstNode::operator new(size_t size__)
 {
 	return YYNODESTATE::getState()->alloc(size__);
@@ -339,12 +344,12 @@ const char *Expr::getKindName() const
 	return "Expr";
 }
 
-BinaryExpr::BinaryExpr(Expr * expr1, Expr * expr2)
+BinaryExpr::BinaryExpr(Expr * left, Expr * right)
 	: Expr()
 {
 	this->kind__ = BinaryExpr_kind;
-	this->expr1 = expr1;
-	this->expr2 = expr2;
+	this->left = left;
+	this->right = right;
 }
 
 BinaryExpr::~BinaryExpr()
@@ -365,7 +370,7 @@ const char *BinaryExpr::getKindName() const
 	return "BinaryExpr";
 }
 
-NumberExpr::NumberExpr(int value)
+NumberExpr::NumberExpr(long value)
 	: Expr()
 {
 	this->kind__ = NumberExpr_kind;
@@ -377,12 +382,19 @@ NumberExpr::~NumberExpr()
 	// not used
 }
 
-int NumberExpr::evaluate()
-#line 28 "tree.tc"
+long NumberExpr::evaluate(VarTable * vars)
+#line 74 "tree.tc"
 {
     return value;
 }
-#line 386 "tree.c"
+#line 391 "tree.cpp"
+
+StdString NumberExpr::toString()
+#line 110 "tree.tc"
+{
+    return std::to_string(value);
+}
+#line 398 "tree.cpp"
 
 int NumberExpr::isA(int kind) const
 {
@@ -397,8 +409,52 @@ const char *NumberExpr::getKindName() const
 	return "NumberExpr";
 }
 
-AddExpr::AddExpr(Expr * expr1, Expr * expr2)
-	: BinaryExpr(expr1, expr2)
+IdentifierExpr::IdentifierExpr(StdString name)
+	: Expr()
+{
+	this->kind__ = IdentifierExpr_kind;
+	this->name = name;
+}
+
+IdentifierExpr::~IdentifierExpr()
+{
+	// not used
+}
+
+long IdentifierExpr::evaluate(VarTable * vars)
+#line 78 "tree.tc"
+{
+    auto it = vars->find(name);
+    if (it == vars->end()) {
+        std::cerr << "Error: Variable '" << name << "' no definida" << std::endl;
+        return 0;
+    }
+    return it->second;
+}
+#line 435 "tree.cpp"
+
+StdString IdentifierExpr::toString()
+#line 114 "tree.tc"
+{
+    return name;
+}
+#line 442 "tree.cpp"
+
+int IdentifierExpr::isA(int kind) const
+{
+	if(kind == IdentifierExpr_kind)
+		return 1;
+	else
+		return Expr::isA(kind);
+}
+
+const char *IdentifierExpr::getKindName() const
+{
+	return "IdentifierExpr";
+}
+
+AddExpr::AddExpr(Expr * left, Expr * right)
+	: BinaryExpr(left, right)
 {
 	this->kind__ = AddExpr_kind;
 }
@@ -408,12 +464,19 @@ AddExpr::~AddExpr()
 	// not used
 }
 
-int AddExpr::evaluate()
-#line 24 "tree.tc"
+long AddExpr::evaluate(VarTable * vars)
+#line 44 "tree.tc"
 {
-    return expr1->evaluate() + expr2->evaluate();
+    return left->evaluate(vars) + right->evaluate(vars);
 }
-#line 417 "tree.c"
+#line 473 "tree.cpp"
+
+StdString AddExpr::toString()
+#line 90 "tree.tc"
+{
+    return left->toString() + " + " + right->toString();
+}
+#line 480 "tree.cpp"
 
 int AddExpr::isA(int kind) const
 {
@@ -426,5 +489,167 @@ int AddExpr::isA(int kind) const
 const char *AddExpr::getKindName() const
 {
 	return "AddExpr";
+}
+
+SubExpr::SubExpr(Expr * left, Expr * right)
+	: BinaryExpr(left, right)
+{
+	this->kind__ = SubExpr_kind;
+}
+
+SubExpr::~SubExpr()
+{
+	// not used
+}
+
+long SubExpr::evaluate(VarTable * vars)
+#line 48 "tree.tc"
+{
+    return left->evaluate(vars) - right->evaluate(vars);
+}
+#line 511 "tree.cpp"
+
+StdString SubExpr::toString()
+#line 94 "tree.tc"
+{
+    return left->toString() + " - " + right->toString();
+}
+#line 518 "tree.cpp"
+
+int SubExpr::isA(int kind) const
+{
+	if(kind == SubExpr_kind)
+		return 1;
+	else
+		return BinaryExpr::isA(kind);
+}
+
+const char *SubExpr::getKindName() const
+{
+	return "SubExpr";
+}
+
+MulExpr::MulExpr(Expr * left, Expr * right)
+	: BinaryExpr(left, right)
+{
+	this->kind__ = MulExpr_kind;
+}
+
+MulExpr::~MulExpr()
+{
+	// not used
+}
+
+long MulExpr::evaluate(VarTable * vars)
+#line 52 "tree.tc"
+{
+    return left->evaluate(vars) * right->evaluate(vars);
+}
+#line 549 "tree.cpp"
+
+StdString MulExpr::toString()
+#line 98 "tree.tc"
+{
+    return left->toString() + " * " + right->toString();
+}
+#line 556 "tree.cpp"
+
+int MulExpr::isA(int kind) const
+{
+	if(kind == MulExpr_kind)
+		return 1;
+	else
+		return BinaryExpr::isA(kind);
+}
+
+const char *MulExpr::getKindName() const
+{
+	return "MulExpr";
+}
+
+DivExpr::DivExpr(Expr * left, Expr * right)
+	: BinaryExpr(left, right)
+{
+	this->kind__ = DivExpr_kind;
+}
+
+DivExpr::~DivExpr()
+{
+	// not used
+}
+
+long DivExpr::evaluate(VarTable * vars)
+#line 56 "tree.tc"
+{
+    long rightVal = right->evaluate(vars);
+    if (rightVal == 0) {
+        std::cerr << "Error: División por cero" << std::endl;
+        return 0;
+    }
+    return left->evaluate(vars) / rightVal;
+}
+#line 592 "tree.cpp"
+
+StdString DivExpr::toString()
+#line 102 "tree.tc"
+{
+    return left->toString() + " / " + right->toString();
+}
+#line 599 "tree.cpp"
+
+int DivExpr::isA(int kind) const
+{
+	if(kind == DivExpr_kind)
+		return 1;
+	else
+		return BinaryExpr::isA(kind);
+}
+
+const char *DivExpr::getKindName() const
+{
+	return "DivExpr";
+}
+
+ModExpr::ModExpr(Expr * left, Expr * right)
+	: BinaryExpr(left, right)
+{
+	this->kind__ = ModExpr_kind;
+}
+
+ModExpr::~ModExpr()
+{
+	// not used
+}
+
+long ModExpr::evaluate(VarTable * vars)
+#line 65 "tree.tc"
+{
+    long rightVal = right->evaluate(vars);
+    if (rightVal == 0) {
+        std::cerr << "Error: Módulo por cero" << std::endl;
+        return 0;
+    }
+    return left->evaluate(vars) % rightVal;
+}
+#line 635 "tree.cpp"
+
+StdString ModExpr::toString()
+#line 106 "tree.tc"
+{
+    return left->toString() + " % " + right->toString();
+}
+#line 642 "tree.cpp"
+
+int ModExpr::isA(int kind) const
+{
+	if(kind == ModExpr_kind)
+		return 1;
+	else
+		return BinaryExpr::isA(kind);
+}
+
+const char *ModExpr::getKindName() const
+{
+	return "ModExpr";
 }
 

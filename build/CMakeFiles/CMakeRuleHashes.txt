@@ -1,4 +1,4 @@
 # Hashes of file build rules.
-98a4fd92b33a7b16dde2218029abab7a Lexer.cpp
-00bf35824bfbab94826028db18fb74bc Parser.cpp
-0c500fa28d057beb1993d9813d4df88a ast.c
+afde37e1af3619e1f768551c30c33263 Lexer.cpp
+47e7948facfe72d4d937f260434a09d8 Parser.cpp
+c823a24d03b9badaa70c29c8b0d27c88 tree.cpp

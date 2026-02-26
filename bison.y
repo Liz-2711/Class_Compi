@@ -24,7 +24,8 @@
 
 
 //Se cambia el type
-%nterm <AstNode*>  input expr term factor
+%nterm <AstNode*> input
+%nterm <Expr*> expr term factor
 
 
 %parse-param {SampleLexer& lexer}
@@ -32,7 +33,7 @@
 %code requires{
     #include <string>
     #include <unordered_map>  
-    #include "tree.h"
+    #include "tree.hpp" 
     class SampleLexer;
 }
 
@@ -59,25 +60,57 @@
 %%
 
 input: expr { 
-    std::cout << "Resultado: " << $1 << std::endl; 
+    std::cout << "\n=== Resultado ===" << std::endl;
+    std::cout << "Expresión: " << $1->toString() << std::endl;
+    
+    
+    VarTable tempVars;
+    for (const auto& pair : vars) {
+        tempVars[pair.first] = static_cast<long>(pair.second);
+    }
+    
+    long resultado = $1->evaluate(&tempVars);
+    
+    std::cout << "Evaluación: " << resultado << std::endl;
+    
     $$ = $1; 
 }
 ;
-expr
-  : expr OP_PLUS term { $$ = new AddExpr($1, $3); }
-  | term              { $$ = $1; }
-  ;
+expr: expr OP_PLUS term { 
+    $$ = new AddExpr($1, $3);
+}
+| expr OP_MINUS term {
+    $$ = new SubExpr($1, $3);
+}
+| term { 
+    $$ = $1; 
+}
+;
 
-term
-  : term OP_MULT factor { $$ = new MulExpr($1, $3); }
-  | factor              { $$ = $1; }
-  ;
+term: term OP_MULT factor { 
+    $$ = new MulExpr($1, $3);
+}
+| term OP_DIV factor {
+    $$ = new DivExpr($1, $3);
+}
+| term OP_MOD factor {
+    $$ = new ModExpr($1, $3);
+}
+| factor { 
+    $$ = $1; 
+}
+;
 
-factor
-  : NUMBER      { $$ = new NumberExpr($1); }
-  | IDENTIFIER  { $$ = new IdentifierExpr($1); }
-  | OPEN_PAR expr CLOSE_PAR { $$ = $2; }
-  ;
-  
+factor: NUMBER { 
+    // Sección 5.3: El valor $1 es de tipo 'long'
+    $$ = new NumberExpr($1);
+}
+| IDENTIFIER {
+    $$ = new IdentifierExpr($1);
+}
+| OPEN_PAR expr CLOSE_PAR { 
+    $$ = $2; 
+}
+;
 
 %%
