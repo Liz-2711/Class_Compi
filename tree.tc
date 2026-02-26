@@ -41,6 +41,7 @@
     StdString name;
 }
 // se le agrega la tabla de variables. 
+//Usar referencias 
 %operation %virtual long evaluate(AstNode *this, VarTable *vars)
 
 //USAR left y right

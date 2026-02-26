@@ -58,7 +58,9 @@
 }
 
 %%
-
+//poder asignar mas expresiones , con lista de expresiones 
+//evaluacion va en el main
+//
 input: expr { 
     std::cout << "\n=== Resultado ===" << std::endl;
     std::cout << "Expresión: " << $1->toString() << std::endl;
