@@ -1,7 +1,7 @@
 %option lexer = "SampleLexer"
 %option lex = "nextToken"
 %option bison-cc
-%option bison-cc-namespace = "Expr"
+%option bison-cc-namespace = "ExprParser"
 %option bison-cc-parser = "Parser"
 
 %top{
@@ -14,19 +14,21 @@
 
 [0-9]+                  { 
     std::cout << "Número detectado: " << str() << std::endl; 
-    return Expr::Parser::token::NUMBER; 
+    return ExprParser::Parser::token::NUMBER; 
 }
 
 [a-zA-Z_][a-zA-Z0-9_]*  { 
     std::cout << "Identificador detectado: " << str() << std::endl; 
-    return Expr::Parser::token::IDENTIFIER; 
+    return ExprParser::Parser::token::IDENTIFIER; 
 }
 
-"+"                     { return Expr::Parser::token::OP_PLUS; }
-"*"                     { return Expr::Parser::token::OP_MULT; }
-"("                     { return Expr::Parser::token::OPEN_PAR; }
-")"                     { return Expr::Parser::token::CLOSE_PAR; }
-
+"+"                     { return ExprParser::Parser::token::OP_PLUS; }
+"-"                     { return ExprParser::Parser::token::OP_MINUS; }
+"*"                     { return ExprParser::Parser::token::OP_MULT; }
+"/"                     { return ExprParser::Parser::token::OP_DIV; }
+"%"                     { return ExprParser::Parser::token::OP_MOD; }
+"("                     { return ExprParser::Parser::token::OPEN_PAR; }
+")"                     { return ExprParser::Parser::token::CLOSE_PAR; }
 [ \t\n\r]+              { /* ignorar espacios */ }
 
 .                       { 

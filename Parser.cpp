@@ -42,7 +42,7 @@
 
 
 // Unqualified %code blocks.
-#line 26 "bison.y"
+#line 39 "bison.y"
 
     #include "Lexer.hpp"
     #include <iostream>
@@ -50,7 +50,7 @@
     // Tabla de variables global usando unordered_map
     std::unordered_map<std::string, int> vars;  
     
-    namespace Expr {
+    namespace ExprParser {
         int yylex(Parser::semantic_type* yylval, SampleLexer& lexer) {
             return lexer.nextToken(yylval);
         }
@@ -60,7 +60,7 @@
         }
     }
     
-    #define yylex(yylval) Expr::yylex(yylval, lexer)
+    #define yylex(yylval) ExprParser::yylex(yylval, lexer)
 
 #line 66 "Parser.cpp"
 
@@ -134,8 +134,8 @@
 #define YYERROR         goto yyerrorlab
 #define YYRECOVERING()  (!!yyerrstatus_)
 
-#line 12 "bison.y"
-namespace Expr {
+#line 19 "bison.y"
+namespace ExprParser {
 #line 140 "Parser.cpp"
 
   /// Build a parser object.
@@ -167,12 +167,15 @@ namespace Expr {
   {
     switch (this->kind ())
     {
-      case symbol_kind::S_NUMBER: // "number"
       case symbol_kind::S_input: // input
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
-        value.copy< int > (YY_MOVE (that.value));
+        value.copy< AstNode* > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_NUMBER: // "number"
+        value.copy< long > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_IDENTIFIER: // "identifier"
@@ -210,12 +213,15 @@ namespace Expr {
     super_type::move (s);
     switch (this->kind ())
     {
-      case symbol_kind::S_NUMBER: // "number"
       case symbol_kind::S_input: // input
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
-        value.move< int > (YY_MOVE (s.value));
+        value.move< AstNode* > (YY_MOVE (s.value));
+        break;
+
+      case symbol_kind::S_NUMBER: // "number"
+        value.move< long > (YY_MOVE (s.value));
         break;
 
       case symbol_kind::S_IDENTIFIER: // "identifier"
@@ -322,12 +328,15 @@ namespace Expr {
   {
     switch (that.kind ())
     {
-      case symbol_kind::S_NUMBER: // "number"
       case symbol_kind::S_input: // input
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
-        value.YY_MOVE_OR_COPY< int > (YY_MOVE (that.value));
+        value.YY_MOVE_OR_COPY< AstNode* > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_NUMBER: // "number"
+        value.YY_MOVE_OR_COPY< long > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_IDENTIFIER: // "identifier"
@@ -349,12 +358,15 @@ namespace Expr {
   {
     switch (that.kind ())
     {
-      case symbol_kind::S_NUMBER: // "number"
       case symbol_kind::S_input: // input
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
-        value.move< int > (YY_MOVE (that.value));
+        value.move< AstNode* > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_NUMBER: // "number"
+        value.move< long > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_IDENTIFIER: // "identifier"
@@ -376,12 +388,15 @@ namespace Expr {
     state = that.state;
     switch (that.kind ())
     {
-      case symbol_kind::S_NUMBER: // "number"
       case symbol_kind::S_input: // input
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
-        value.copy< int > (that.value);
+        value.copy< AstNode* > (that.value);
+        break;
+
+      case symbol_kind::S_NUMBER: // "number"
+        value.copy< long > (that.value);
         break;
 
       case symbol_kind::S_IDENTIFIER: // "identifier"
@@ -401,12 +416,15 @@ namespace Expr {
     state = that.state;
     switch (that.kind ())
     {
-      case symbol_kind::S_NUMBER: // "number"
       case symbol_kind::S_input: // input
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
-        value.move< int > (that.value);
+        value.move< AstNode* > (that.value);
+        break;
+
+      case symbol_kind::S_NUMBER: // "number"
+        value.move< long > (that.value);
         break;
 
       case symbol_kind::S_IDENTIFIER: // "identifier"
@@ -666,12 +684,15 @@ namespace Expr {
          when using variants.  */
       switch (yyr1_[yyn])
     {
-      case symbol_kind::S_NUMBER: // "number"
       case symbol_kind::S_input: // input
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
-        yylhs.value.emplace< int > ();
+        yylhs.value.emplace< AstNode* > ();
+        break;
+
+      case symbol_kind::S_NUMBER: // "number"
+        yylhs.value.emplace< long > ();
         break;
 
       case symbol_kind::S_IDENTIFIER: // "identifier"
@@ -693,81 +714,58 @@ namespace Expr {
           switch (yyn)
             {
   case 2: // input: expr
-#line 48 "bison.y"
+#line 61 "bison.y"
             { 
-    std::cout << "Resultado: " << yystack_[0].value.as < int > () << std::endl; 
-    yylhs.value.as < int > () = yystack_[0].value.as < int > (); 
+    std::cout << "Resultado: " << yystack_[0].value.as < AstNode* > () << std::endl; 
+    yylhs.value.as < AstNode* > () = yystack_[0].value.as < AstNode* > (); 
 }
-#line 702 "Parser.cpp"
+#line 723 "Parser.cpp"
     break;
 
   case 3: // expr: expr "+" term
-#line 54 "bison.y"
-                        { 
-    std::cout << "Evaluando: " << yystack_[2].value.as < int > () << " + " << yystack_[0].value.as < int > () << std::endl;
-    yylhs.value.as < int > () = yystack_[2].value.as < int > () + yystack_[0].value.as < int > (); 
-}
-#line 711 "Parser.cpp"
+#line 67 "bison.y"
+                      { yylhs.value.as < AstNode* > () = new AddExpr(yystack_[2].value.as < AstNode* > (), yystack_[0].value.as < AstNode* > ()); }
+#line 729 "Parser.cpp"
     break;
 
   case 4: // expr: term
-#line 58 "bison.y"
-       { 
-    yylhs.value.as < int > () = yystack_[0].value.as < int > (); 
-}
-#line 719 "Parser.cpp"
+#line 68 "bison.y"
+                      { yylhs.value.as < AstNode* > () = yystack_[0].value.as < AstNode* > (); }
+#line 735 "Parser.cpp"
     break;
 
   case 5: // term: term "*" factor
-#line 63 "bison.y"
-                          { 
-    std::cout << "Evaluando: " << yystack_[2].value.as < int > () << " * " << yystack_[0].value.as < int > () << std::endl;
-    yylhs.value.as < int > () = yystack_[2].value.as < int > () * yystack_[0].value.as < int > (); 
-}
-#line 728 "Parser.cpp"
+#line 72 "bison.y"
+                        { yylhs.value.as < AstNode* > () = new MulExpr(yystack_[2].value.as < AstNode* > (), yystack_[0].value.as < AstNode* > ()); }
+#line 741 "Parser.cpp"
     break;
 
   case 6: // term: factor
-#line 67 "bison.y"
-         { 
-    yylhs.value.as < int > () = yystack_[0].value.as < int > (); 
-}
-#line 736 "Parser.cpp"
+#line 73 "bison.y"
+                        { yylhs.value.as < AstNode* > () = yystack_[0].value.as < AstNode* > (); }
+#line 747 "Parser.cpp"
     break;
 
-  case 7: // factor: "(" expr ")"
-#line 72 "bison.y"
-                                { 
-    yylhs.value.as < int > () = yystack_[1].value.as < int > (); 
-}
-#line 744 "Parser.cpp"
+  case 7: // factor: "number"
+#line 77 "bison.y"
+                { yylhs.value.as < AstNode* > () = new NumberExpr(yystack_[0].value.as < long > ()); }
+#line 753 "Parser.cpp"
     break;
 
-  case 8: // factor: "number"
-#line 75 "bison.y"
-         { 
-    yylhs.value.as < int > () = std::stoi(lexer.str()); 
-}
-#line 752 "Parser.cpp"
-    break;
-
-  case 9: // factor: "identifier"
+  case 8: // factor: "identifier"
 #line 78 "bison.y"
-             {
-    std::string var = lexer.str();
-    auto it = vars.find(var);
-    if(it == vars.end()){
-        std::cerr << "Error: Variable '" << var << "' no definida" << std::endl;
-        throw std::runtime_error("Variable no encontrada: " + var);
-    }
-    std::cout << "Usando variable '" << var << "' = " << it->second << std::endl;
-    yylhs.value.as < int > () = it->second;
-}
-#line 767 "Parser.cpp"
+                { yylhs.value.as < AstNode* > () = new IdentifierExpr(yystack_[0].value.as < std::string > ()); }
+#line 759 "Parser.cpp"
+    break;
+
+  case 9: // factor: "(" expr ")"
+#line 79 "bison.y"
+                            { yylhs.value.as < AstNode* > () = yystack_[1].value.as < AstNode* > (); }
+#line 765 "Parser.cpp"
     break;
 
 
-#line 771 "Parser.cpp"
+#line 769 "Parser.cpp"
 
             default:
               break;
@@ -1115,28 +1113,28 @@ namespace Expr {
   }
 
 
-  const signed char Parser::yypact_ninf_ = -6;
+  const signed char Parser::yypact_ninf_ = -8;
 
   const signed char Parser::yytable_ninf_ = -1;
 
   const signed char
   Parser::yypact_[] =
   {
-      -5,    -5,    -6,    -6,     5,     3,     4,    -6,    -2,    -6,
-      -5,    -5,    -6,     4,    -6
+      -7,    -7,    -8,    -8,     2,     4,     1,    -8,    -3,    -8,
+      -7,    -7,    -8,     1,    -8
   };
 
   const signed char
   Parser::yydefact_[] =
   {
-       0,     0,     8,     9,     0,     2,     4,     6,     0,     1,
-       0,     0,     7,     3,     5
+       0,     0,     7,     8,     0,     2,     4,     6,     0,     1,
+       0,     0,     9,     3,     5
   };
 
   const signed char
   Parser::yypgoto_[] =
   {
-      -6,    -6,     6,    -1,     0
+      -8,    -8,     7,    -1,     0
   };
 
   const signed char
@@ -1148,34 +1146,34 @@ namespace Expr {
   const signed char
   Parser::yytable_[] =
   {
-       1,    10,     2,     3,    12,     9,    10,     8,    11,    13,
+      10,     1,     9,     2,     3,    11,    12,    10,     8,    13,
        0,    14
   };
 
   const signed char
   Parser::yycheck_[] =
   {
-       5,     3,     7,     8,     6,     0,     3,     1,     4,    10,
+       3,     8,     0,    10,    11,     4,     9,     3,     1,    10,
       -1,    11
   };
 
   const signed char
   Parser::yystos_[] =
   {
-       0,     5,     7,     8,    10,    11,    12,    13,    11,     0,
-       3,     4,     6,    12,    13
+       0,     8,    10,    11,    13,    14,    15,    16,    14,     0,
+       3,     4,     9,    15,    16
   };
 
   const signed char
   Parser::yyr1_[] =
   {
-       0,     9,    10,    11,    11,    12,    12,    13,    13,    13
+       0,    12,    13,    14,    14,    15,    15,    16,    16,    16
   };
 
   const signed char
   Parser::yyr2_[] =
   {
-       0,     2,     1,     3,     1,     3,     1,     3,     1,     1
+       0,     2,     1,     3,     1,     3,     1,     1,     1,     3
   };
 
 
@@ -1186,8 +1184,8 @@ namespace Expr {
   const Parser::yytname_[] =
   {
   "\"end of file\"", "error", "\"invalid token\"", "\"+\"", "\"*\"",
-  "\"(\"", "\")\"", "\"number\"", "\"identifier\"", "$accept", "input",
-  "expr", "term", "factor", YY_NULLPTR
+  "\"-\"", "\"/\"", "\"%\"", "\"(\"", "\")\"", "\"number\"",
+  "\"identifier\"", "$accept", "input", "expr", "term", "factor", YY_NULLPTR
   };
 #endif
 
@@ -1196,7 +1194,7 @@ namespace Expr {
   const signed char
   Parser::yyrline_[] =
   {
-       0,    48,    48,    54,    58,    63,    67,    72,    75,    78
+       0,    61,    61,    67,    68,    72,    73,    77,    78,    79
   };
 
   void
@@ -1261,10 +1259,10 @@ namespace Expr {
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8
+       5,     6,     7,     8,     9,    10,    11
     };
     // Last valid token kind.
-    const int code_max = 263;
+    const int code_max = 266;
 
     if (t <= 0)
       return symbol_kind::S_YYEOF;
@@ -1274,8 +1272,8 @@ namespace Expr {
       return symbol_kind::S_YYUNDEF;
   }
 
-#line 12 "bison.y"
-} // Expr
-#line 1280 "Parser.cpp"
+#line 19 "bison.y"
+} // ExprParser
+#line 1278 "Parser.cpp"
 
-#line 90 "bison.y"
+#line 83 "bison.y"

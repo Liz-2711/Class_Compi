@@ -3,23 +3,36 @@
 
 %token OP_PLUS "+"
 %token OP_MULT "*"
+%token OP_MINUS "-"
+%token OP_DIV "/"
+%token OP_MOD "%"
 %token OPEN_PAR "("
 %token CLOSE_PAR ")"
-%token<int> NUMBER "number"
+%token<long> NUMBER "number"
+
 %token<std::string> IDENTIFIER "identifier"
 
 %define parse.error verbose
-%define api.namespace {Expr}
+//Cambiar el nombre de namespace porque luego en treeCC 
+//Se usa Expr 
+//define api.namespace {Expr}
+%define api.namespace {ExprParser}
+
 %define api.parser.class {Parser}
 %define api.value.type variant
 
-%type<int> input expr term factor
+
+
+//Se cambia el type
+%nterm <AstNode*>  input expr term factor
+
 
 %parse-param {SampleLexer& lexer}
 
 %code requires{
     #include <string>
     #include <unordered_map>  
+    #include "tree.h"
     class SampleLexer;
 }
 
@@ -30,7 +43,7 @@
     // Tabla de variables global usando unordered_map
     std::unordered_map<std::string, int> vars;  
     
-    namespace Expr {
+    namespace ExprParser {
         int yylex(Parser::semantic_type* yylval, SampleLexer& lexer) {
             return lexer.nextToken(yylval);
         }
@@ -40,7 +53,7 @@
         }
     }
     
-    #define yylex(yylval) Expr::yylex(yylval, lexer)
+    #define yylex(yylval) ExprParser::yylex(yylval, lexer)
 }
 
 %%
@@ -50,41 +63,21 @@ input: expr {
     $$ = $1; 
 }
 ;
+expr
+  : expr OP_PLUS term { $$ = new AddExpr($1, $3); }
+  | term              { $$ = $1; }
+  ;
 
-expr: expr OP_PLUS term { 
-    std::cout << "Evaluando: " << $1 << " + " << $3 << std::endl;
-    $$ = $1 + $3; 
-}
-| term { 
-    $$ = $1; 
-}
-;
+term
+  : term OP_MULT factor { $$ = new MulExpr($1, $3); }
+  | factor              { $$ = $1; }
+  ;
 
-term: term OP_MULT factor { 
-    std::cout << "Evaluando: " << $1 << " * " << $3 << std::endl;
-    $$ = $1 * $3; 
-}
-| factor { 
-    $$ = $1; 
-}
-;
-
-factor: OPEN_PAR expr CLOSE_PAR { 
-    $$ = $2; 
-}
-| NUMBER { 
-    $$ = std::stoi(lexer.str()); 
-}
-| IDENTIFIER {
-    std::string var = lexer.str();
-    auto it = vars.find(var);
-    if(it == vars.end()){
-        std::cerr << "Error: Variable '" << var << "' no definida" << std::endl;
-        throw std::runtime_error("Variable no encontrada: " + var);
-    }
-    std::cout << "Usando variable '" << var << "' = " << it->second << std::endl;
-    $$ = it->second;
-}
-;
+factor
+  : NUMBER      { $$ = new NumberExpr($1); }
+  | IDENTIFIER  { $$ = new IdentifierExpr($1); }
+  | OPEN_PAR expr CLOSE_PAR { $$ = $2; }
+  ;
+  
 
 %%

@@ -8,11 +8,11 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-#define REFLEX_OPTION_YYLTYPE             Expr::location
-#define REFLEX_OPTION_YYSTYPE             Expr::Parser::semantic_type
+#define REFLEX_OPTION_YYLTYPE             ExprParser::location
+#define REFLEX_OPTION_YYSTYPE             ExprParser::Parser::semantic_type
 #define REFLEX_OPTION_bison               true
 #define REFLEX_OPTION_bison_cc            true
-#define REFLEX_OPTION_bison_cc_namespace  Expr
+#define REFLEX_OPTION_bison_cc_namespace  ExprParser
 #define REFLEX_OPTION_bison_cc_parser     Parser
 #define REFLEX_OPTION_header_file         "Lexer.hpp"
 #define REFLEX_OPTION_lex                 nextToken
@@ -53,9 +53,9 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-int SampleLexer::nextToken(Expr::Parser::semantic_type& yylval)
+int SampleLexer::nextToken(ExprParser::Parser::semantic_type& yylval)
 {
-  static const char *REGEX_INITIAL = "(?m)([0-9]+)|([A-Z_a-z][0-9A-Z_a-z]*)|((?:\\Q+\\E))|((?:\\Q*\\E))|((?:\\Q(\\E))|((?:\\Q)\\E))|([\\x09\\x0a\\x0d\\x20]+)|(.)";
+  static const char *REGEX_INITIAL = "(?m)([0-9]+)|([A-Z_a-z][0-9A-Z_a-z]*)|((?:\\Q+\\E))|((?:\\Q-\\E))|((?:\\Q*\\E))|((?:\\Q/\\E))|((?:\\Q%\\E))|((?:\\Q(\\E))|((?:\\Q)\\E))|([\\x09\\x0a\\x0d\\x20]+)|(.)";
   static const reflex::Pattern PATTERN_INITIAL(REGEX_INITIAL);
   if (!has_matcher())
   {
@@ -79,7 +79,7 @@ int SampleLexer::nextToken(Expr::Parser::semantic_type& yylval)
 #line 15 "lexer.l"
 {
     std::cout << "Número detectado: " << str() << std::endl;
-    return Expr::Parser::token::NUMBER;
+    return ExprParser::Parser::token::NUMBER;
 }
 
             break;
@@ -87,34 +87,45 @@ int SampleLexer::nextToken(Expr::Parser::semantic_type& yylval)
 #line 20 "lexer.l"
 {
     std::cout << "Identificador detectado: " << str() << std::endl;
-    return Expr::Parser::token::IDENTIFIER;
+    return ExprParser::Parser::token::IDENTIFIER;
 }
 
             break;
           case 3: // rule lexer.l:25: "+" :
 #line 25 "lexer.l"
-{ return Expr::Parser::token::OP_PLUS; }
+{ return ExprParser::Parser::token::OP_PLUS; }
             break;
-          case 4: // rule lexer.l:26: "*" :
+          case 4: // rule lexer.l:26: "-" :
 #line 26 "lexer.l"
-{ return Expr::Parser::token::OP_MULT; }
+{ return ExprParser::Parser::token::OP_MINUS; }
             break;
-          case 5: // rule lexer.l:27: "(" :
+          case 5: // rule lexer.l:27: "*" :
 #line 27 "lexer.l"
-{ return Expr::Parser::token::OPEN_PAR; }
+{ return ExprParser::Parser::token::OP_MULT; }
             break;
-          case 6: // rule lexer.l:28: ")" :
+          case 6: // rule lexer.l:28: "/" :
 #line 28 "lexer.l"
-{ return Expr::Parser::token::CLOSE_PAR; }
-
+{ return ExprParser::Parser::token::OP_DIV; }
             break;
-          case 7: // rule lexer.l:30: [ \t\n\r]+ :
+          case 7: // rule lexer.l:29: "%" :
+#line 29 "lexer.l"
+{ return ExprParser::Parser::token::OP_MOD; }
+            break;
+          case 8: // rule lexer.l:30: "(" :
 #line 30 "lexer.l"
+{ return ExprParser::Parser::token::OPEN_PAR; }
+            break;
+          case 9: // rule lexer.l:31: ")" :
+#line 31 "lexer.l"
+{ return ExprParser::Parser::token::CLOSE_PAR; }
+            break;
+          case 10: // rule lexer.l:32: [ \t\n\r]+ :
+#line 32 "lexer.l"
 { /* ignorar espacios */ }
 
             break;
-          case 8: // rule lexer.l:32: . :
-#line 32 "lexer.l"
+          case 11: // rule lexer.l:34: . :
+#line 34 "lexer.l"
 {
     std::cerr << "Carácter no reconocido: " << str() << std::endl;
     return -1;

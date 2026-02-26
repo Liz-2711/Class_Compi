@@ -33,7 +33,7 @@
 
 /**
  ** \file Parser.hpp
- ** Define the Expr::parser class.
+ ** Define the ExprParser::parser class.
  */
 
 // C++ LALR(1) parser skeleton written by Akim Demaille.
@@ -45,13 +45,14 @@
 #ifndef YY_YY_PARSER_HPP_INCLUDED
 # define YY_YY_PARSER_HPP_INCLUDED
 // "%code requires" blocks.
-#line 20 "bison.y"
+#line 32 "bison.y"
 
     #include <string>
     #include <unordered_map>  
+    #include "tree.h"
     class SampleLexer;
 
-#line 55 "Parser.hpp"
+#line 56 "Parser.hpp"
 
 
 # include <cstdlib> // std::abort
@@ -185,9 +186,9 @@
 # define YYDEBUG 0
 #endif
 
-#line 12 "bison.y"
-namespace Expr {
-#line 191 "Parser.hpp"
+#line 19 "bison.y"
+namespace ExprParser {
+#line 192 "Parser.hpp"
 
 
 
@@ -383,15 +384,17 @@ namespace Expr {
     /// An auxiliary type to compute the largest semantic type.
     union union_type
     {
-      // "number"
       // input
       // expr
       // term
       // factor
-      char dummy1[sizeof (int)];
+      char dummy1[sizeof (AstNode*)];
+
+      // "number"
+      char dummy2[sizeof (long)];
 
       // "identifier"
-      char dummy2[sizeof (std::string)];
+      char dummy3[sizeof (std::string)];
     };
 
     /// The size of the largest semantic type.
@@ -437,10 +440,13 @@ namespace Expr {
     YYUNDEF = 257,                 // "invalid token"
     OP_PLUS = 258,                 // "+"
     OP_MULT = 259,                 // "*"
-    OPEN_PAR = 260,                // "("
-    CLOSE_PAR = 261,               // ")"
-    NUMBER = 262,                  // "number"
-    IDENTIFIER = 263               // "identifier"
+    OP_MINUS = 260,                // "-"
+    OP_DIV = 261,                  // "/"
+    OP_MOD = 262,                  // "%"
+    OPEN_PAR = 263,                // "("
+    CLOSE_PAR = 264,               // ")"
+    NUMBER = 265,                  // "number"
+    IDENTIFIER = 266               // "identifier"
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -457,22 +463,25 @@ namespace Expr {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 9, ///< Number of tokens.
+        YYNTOKENS = 12, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
         S_YYUNDEF = 2,                           // "invalid token"
         S_OP_PLUS = 3,                           // "+"
         S_OP_MULT = 4,                           // "*"
-        S_OPEN_PAR = 5,                          // "("
-        S_CLOSE_PAR = 6,                         // ")"
-        S_NUMBER = 7,                            // "number"
-        S_IDENTIFIER = 8,                        // "identifier"
-        S_YYACCEPT = 9,                          // $accept
-        S_input = 10,                            // input
-        S_expr = 11,                             // expr
-        S_term = 12,                             // term
-        S_factor = 13                            // factor
+        S_OP_MINUS = 5,                          // "-"
+        S_OP_DIV = 6,                            // "/"
+        S_OP_MOD = 7,                            // "%"
+        S_OPEN_PAR = 8,                          // "("
+        S_CLOSE_PAR = 9,                         // ")"
+        S_NUMBER = 10,                           // "number"
+        S_IDENTIFIER = 11,                       // "identifier"
+        S_YYACCEPT = 12,                         // $accept
+        S_input = 13,                            // input
+        S_expr = 14,                             // expr
+        S_term = 15,                             // term
+        S_factor = 16                            // factor
       };
     };
 
@@ -507,12 +516,15 @@ namespace Expr {
       {
         switch (this->kind ())
     {
-      case symbol_kind::S_NUMBER: // "number"
       case symbol_kind::S_input: // input
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
-        value.move< int > (std::move (that.value));
+        value.move< AstNode* > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_NUMBER: // "number"
+        value.move< long > (std::move (that.value));
         break;
 
       case symbol_kind::S_IDENTIFIER: // "identifier"
@@ -541,12 +553,24 @@ namespace Expr {
 #endif
 
 #if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, int&& v)
+      basic_symbol (typename Base::kind_type t, AstNode*&& v)
         : Base (t)
         , value (std::move (v))
       {}
 #else
-      basic_symbol (typename Base::kind_type t, const int& v)
+      basic_symbol (typename Base::kind_type t, const AstNode*& v)
+        : Base (t)
+        , value (v)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, long&& v)
+        : Base (t)
+        , value (std::move (v))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const long& v)
         : Base (t)
         , value (v)
       {}
@@ -588,12 +612,15 @@ namespace Expr {
         // Value type destructor.
 switch (yykind)
     {
-      case symbol_kind::S_NUMBER: // "number"
       case symbol_kind::S_input: // input
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
-        value.template destroy< int > ();
+        value.template destroy< AstNode* > ();
+        break;
+
+      case symbol_kind::S_NUMBER: // "number"
+        value.template destroy< long > ();
         break;
 
       case symbol_kind::S_IDENTIFIER: // "identifier"
@@ -694,10 +721,10 @@ switch (yykind)
 #endif
       {}
 #if 201103L <= YY_CPLUSPLUS
-      symbol_type (int tok, int v)
+      symbol_type (int tok, long v)
         : super_type (token_kind_type (tok), std::move (v))
 #else
-      symbol_type (int tok, const int& v)
+      symbol_type (int tok, const long& v)
         : super_type (token_kind_type (tok), v)
 #endif
       {}
@@ -834,6 +861,51 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
+      make_OP_MINUS ()
+      {
+        return symbol_type (token::OP_MINUS);
+      }
+#else
+      static
+      symbol_type
+      make_OP_MINUS ()
+      {
+        return symbol_type (token::OP_MINUS);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_OP_DIV ()
+      {
+        return symbol_type (token::OP_DIV);
+      }
+#else
+      static
+      symbol_type
+      make_OP_DIV ()
+      {
+        return symbol_type (token::OP_DIV);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_OP_MOD ()
+      {
+        return symbol_type (token::OP_MOD);
+      }
+#else
+      static
+      symbol_type
+      make_OP_MOD ()
+      {
+        return symbol_type (token::OP_MOD);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
       make_OPEN_PAR ()
       {
         return symbol_type (token::OPEN_PAR);
@@ -864,14 +936,14 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_NUMBER (int v)
+      make_NUMBER (long v)
       {
         return symbol_type (token::NUMBER, std::move (v));
       }
 #else
       static
       symbol_type
-      make_NUMBER (const int& v)
+      make_NUMBER (const long& v)
       {
         return symbol_type (token::NUMBER, v);
       }
@@ -1231,9 +1303,9 @@ switch (yykind)
   };
 
 
-#line 12 "bison.y"
-} // Expr
-#line 1237 "Parser.hpp"
+#line 19 "bison.y"
+} // ExprParser
+#line 1309 "Parser.hpp"
 
 
 

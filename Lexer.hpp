@@ -11,11 +11,11 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-#define REFLEX_OPTION_YYLTYPE             Expr::location
-#define REFLEX_OPTION_YYSTYPE             Expr::Parser::semantic_type
+#define REFLEX_OPTION_YYLTYPE             ExprParser::location
+#define REFLEX_OPTION_YYSTYPE             ExprParser::Parser::semantic_type
 #define REFLEX_OPTION_bison               true
 #define REFLEX_OPTION_bison_cc            true
-#define REFLEX_OPTION_bison_cc_namespace  Expr
+#define REFLEX_OPTION_bison_cc_namespace  ExprParser
 #define REFLEX_OPTION_bison_cc_parser     Parser
 #define REFLEX_OPTION_header_file         "Lexer.hpp"
 #define REFLEX_OPTION_lex                 nextToken
@@ -70,12 +70,12 @@ class SampleLexer : public reflex::AbstractLexer<reflex::Matcher> {
   {
   }
   static const int INITIAL = 0;
-  virtual int nextToken(Expr::Parser::semantic_type *lvalp)
+  virtual int nextToken(ExprParser::Parser::semantic_type *lvalp)
   {
     return nextToken(*lvalp);
   }
   // the bison-cc lexer function defined by SECTION 2
-  virtual int nextToken(Expr::Parser::semantic_type& yylval);
+  virtual int nextToken(ExprParser::Parser::semantic_type& yylval);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
